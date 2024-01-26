@@ -34,12 +34,14 @@ executable comments
         log-base,
         http-media,
         warp,
+        comments,
     hs-source-dirs:   app
     default-language: GHC2021
 
 library
     exposed-modules:  
         Comments
+        Comments.Cauldron
         Comments.Api
         Comments.Server
         Comments.Runner

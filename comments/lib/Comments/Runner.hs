@@ -23,4 +23,4 @@ makeRunner CommentsServer {server} = Runner {runServer}
     app :: Application
     app = serve (Proxy @Api) hoistedServer
     runServer =
-      run 8080 app
+      run 8000 app
