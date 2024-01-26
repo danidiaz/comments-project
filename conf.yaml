@@ -2,3 +2,6 @@
 #
 runner:
   port: 8000
+sqlite:
+  databaseFile: "db.sqlite"
+  poolSize: 10
