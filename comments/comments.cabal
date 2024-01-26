@@ -39,7 +39,7 @@ executable comments
 library
     exposed-modules:  
         Comments
-        Comments.Api
+        Comments.API
         Lucid.Servant
         Servant.HTML.Lucid
     build-depends:
