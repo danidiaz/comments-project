@@ -5,23 +5,24 @@ module Comments.Cauldron (cauldron) where
 
 import Bean.JsonConf
 import Bean.JsonConf.YamlFile qualified
+import Bean.Sqlite.CurrentConnection
+import Bean.Sqlite.CurrentConnection.Env qualified
+import Bean.Sqlite.Pool
 import Cauldron
 import Cauldron.Managed
+import Comments.Repository
+import Comments.Repository.Sqlite qualified
 import Comments.Runner
 import Comments.Server
 import Control.Monad.IO.Class
+import Control.Monad.Trans.Reader
 import Data.Function ((&))
 import Log
 import Log.Backend.StandardOutput
-import Bean.Sqlite.Pool
+import Servant.Server (Handler)
 import Sqlite (Connection)
-import Control.Monad.Trans.Reader
-import Bean.Sqlite.CurrentConnection 
-import Bean.Sqlite.CurrentConnection.Env qualified
-import Comments.Repository
-import Comments.Repository.Sqlite qualified
 
-type M = ReaderT Connection IO 
+type M = ReaderT Connection IO
 
 cauldron :: Cauldron Managed
 cauldron = do

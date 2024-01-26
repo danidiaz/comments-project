@@ -65,5 +65,6 @@ library
         resource-pool,
         mtl,
         transformers,
+        http-api-data,
     hs-source-dirs:   lib
     default-language: GHC2021
