@@ -15,12 +15,13 @@ import Log
 import Log.Backend.StandardOutput
 
 cauldron :: Cauldron Managed
-cauldron =
+cauldron = do
+  let liftConIO = hoistConstructor liftIO
   emptyCauldron
     & do
       let makeJsonConf = Bean.JsonConf.YamlFile.make do Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
-      insert @(JsonConf IO) do makeBean do hoistConstructor liftIO do pack effect do makeJsonConf
+      insert @(JsonConf IO) do makeBean do liftConIO do pack effect do makeJsonConf
     & insert @Logger do makeBean do pack effect do managed withStdOutLogger
     & insert @CommentsServer do makeBean do pack value makeCommentsServer
-    & insert @RunnerConf do makeBean do hoistConstructor liftIO do pack effect do Bean.JsonConf.lookupSection @IO "runner"
+    & insert @RunnerConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection @IO "runner"
     & insert @Runner do makeBean do pack value makeRunner
