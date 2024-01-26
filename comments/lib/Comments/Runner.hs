@@ -2,8 +2,10 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-module Comments.Runner (RunnerConf (..), Runner (..), makeRunner) where
+module Comments.Runner (RunnerConf (..), 
+  Runner (..), makeRunner) where
 
 import Comments.Api
 import Comments.Server
@@ -13,17 +15,18 @@ import Data.Proxy
 import GHC.Generics (Generic)
 import Network.Wai.Handler.Warp (run)
 import Servant.Server
+import Log
 
 newtype RunnerConf = RunnerConf
   { port :: Int
   }
   deriving stock (Generic)
-  deriving anyclass (FromJSON)
+  deriving anyclass (FromJSON, ToJSON)
 
 newtype Runner = Runner {runServer :: IO ()}
 
-makeRunner :: RunnerConf -> CommentsServer -> Runner
-makeRunner RunnerConf {port} CommentsServer {server} = Runner {runServer}
+makeRunner :: Logger -> RunnerConf -> CommentsServer -> Runner
+makeRunner logger conf@RunnerConf {port} CommentsServer {server} = Runner {runServer}
   where
     hoistedServer =
       hoistServer
@@ -32,5 +35,6 @@ makeRunner RunnerConf {port} CommentsServer {server} = Runner {runServer}
         server
     app :: Application
     app = serve (Proxy @Api) hoistedServer
-    runServer =
+    runServer = do
+      runLogT "runner" logger defaultLogLevel do logInfo "Runner started" conf
       run port app

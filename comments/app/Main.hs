@@ -11,7 +11,8 @@ main :: IO ()
 main =
   case cook forbidDepCycles cauldron of
     Left badBeans -> print badBeans
-    Right (_, action) -> do
+    Right (depGraph, action) -> do
+      exportToDot "beans.dot" do collapsePrimaryBeans do removeDecos do removeSecondaryBeans do depGraph
       with action \boiledBeans -> do
         case taste boiledBeans of
           Nothing -> error "no bean found"
