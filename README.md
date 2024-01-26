@@ -19,6 +19,11 @@ cabal run comments
 ormolu --mode inplace $(git ls-files '*.hs')
 ```
 
+# Some things to note
+
+- There is not a central configuration record. Each component registers some configuration
+  bean, which is converted independently from the raw JSON configuration. 
+
 # Links
 
 - [sqlite ROWIDs and the INTEGER PRIMARY KEY](https://www.sqlite.org/lang_createtable.html#rowid)
