@@ -47,6 +47,8 @@ library
         Comments.Runner
         Lucid.Servant
         Servant.HTML.Lucid
+        Bean.JsonConf
+        Bean.JsonConf.YamlFile
     build-depends:
         base,
         servant,
@@ -61,5 +63,7 @@ library
         log-base,
         http-media,
         warp,
+        yaml,
+        exceptions,
     hs-source-dirs:   lib
     default-language: GHC2021
