@@ -22,18 +22,7 @@ executable comments
     -- other-extensions:
     build-depends:
         base,
-        servant,
-        servant-server,
-        lucid2,
-        text,
-        bytestring,
-        containers,
-        aeson,
         cauldron,
-        dani-sqlite,
-        log-base,
-        http-media,
-        warp,
         comments,
     hs-source-dirs:   app
     default-language: GHC2021
@@ -65,5 +54,6 @@ library
         warp,
         yaml,
         exceptions,
+        resource-pool,
     hs-source-dirs:   lib
     default-language: GHC2021
