@@ -1,17 +1,18 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE NoFieldSelectors #-}
-{-# LANGUAGE DataKinds #-}
-module Comments.Api () where
 
-import Servant.API
-import Servant.API.NamedRoutes
+module Comments.Api (Api, Comments (..)) where
+
 import GHC.Generics
 import Lucid
+import Servant.API
+import Servant.API.NamedRoutes
 import Servant.HTML.Lucid
 
 type Api = NamedRoutes Comments
 
-data Comments mode = Comments {
-        mainPage :: Get '[HTML] (Html ())
-    } deriving stock Generic
-
+data Comments mode = Comments
+  { mainPage :: mode :- Get '[HTML] (Html ())
+  }
+  deriving stock (Generic)

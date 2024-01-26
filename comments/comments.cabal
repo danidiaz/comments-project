@@ -33,6 +33,7 @@ executable comments
         dani-sqlite,
         log-base,
         http-media,
+        warp,
     hs-source-dirs:   app
     default-language: GHC2021
 
@@ -40,6 +41,8 @@ library
     exposed-modules:  
         Comments
         Comments.Api
+        Comments.Server
+        Comments.Runner
         Lucid.Servant
         Servant.HTML.Lucid
     build-depends:
@@ -55,5 +58,6 @@ library
         dani-sqlite,
         log-base,
         http-media,
+        warp,
     hs-source-dirs:   lib
     default-language: GHC2021

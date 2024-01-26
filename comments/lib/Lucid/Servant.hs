@@ -1,32 +1,43 @@
 {-# LANGUAGE OverloadedStrings #-}
 
--- | Module vendored from https://hackage.haskell.org/package/servant-lucid-0.9.0.6 
+-- | Module vendored from https://hackage.haskell.org/package/servant-lucid-0.9.0.6
 --
 -- Some helper functions for creating values in
 -- [lucid](https://hackage.haskell.org/package/lucid) DSLs that work
 -- with [servant](https://hackage.haskell.org/package/servant).
-module Lucid.Servant (
-    safeHref_,
+module Lucid.Servant
+  ( safeHref_,
     safeAbsHref_,
     safeRelHref_,
     linkHref_,
     linkAbsHref_,
     linkRelHref_,
-    ) where
+  )
+where
 
-import           Data.Proxy
-                 (Proxy)
-import           Data.Semigroup
-                 ((<>))
-import qualified Data.Text           as T
-import           Lucid
-                 (Attributes)
-import           Lucid.Html5
-                 (href_)
-import           Servant.API
-                 (toUrlPiece)
-import           Servant.Links
-                 (HasLink, IsElem, Link, MkLink, safeLink')
+import Data.Proxy
+  ( Proxy,
+  )
+import Data.Semigroup
+  ( (<>),
+  )
+import Data.Text qualified as T
+import Lucid
+  ( Attributes,
+  )
+import Lucid.Html5
+  ( href_,
+  )
+import Servant.API
+  ( toUrlPiece,
+  )
+import Servant.Links
+  ( HasLink,
+    IsElem,
+    Link,
+    MkLink,
+    safeLink',
+  )
 
 -- | 'safeLink' variant which creates lucid's 'Attribute' given base url.
 --
@@ -44,23 +55,28 @@ import           Servant.Links
 --
 -- >>> safeHref_ "http://example.com/" api api
 -- Attribute "href" "http://example.com/path"
---
-safeHref_
-    :: (IsElem endpoint api, HasLink endpoint)
-    => T.Text
-    -> Proxy api -> Proxy endpoint -> MkLink endpoint Attributes
+safeHref_ ::
+  (IsElem endpoint api, HasLink endpoint) =>
+  T.Text ->
+  Proxy api ->
+  Proxy endpoint ->
+  MkLink endpoint Attributes
 safeHref_ = safeLink' . linkHref_
 
 -- | @'safeLink' "/"@
-safeAbsHref_
-    :: (IsElem endpoint api, HasLink endpoint)
-    => Proxy api -> Proxy endpoint -> MkLink endpoint Attributes
+safeAbsHref_ ::
+  (IsElem endpoint api, HasLink endpoint) =>
+  Proxy api ->
+  Proxy endpoint ->
+  MkLink endpoint Attributes
 safeAbsHref_ = safeLink' linkAbsHref_
 
 -- | @'safeLink' ""@
-safeRelHref_
-    :: (IsElem endpoint api, HasLink endpoint)
-    => Proxy api -> Proxy endpoint -> MkLink endpoint Attributes
+safeRelHref_ ::
+  (IsElem endpoint api, HasLink endpoint) =>
+  Proxy api ->
+  Proxy endpoint ->
+  MkLink endpoint Attributes
 safeRelHref_ = safeLink' linkRelHref_
 
 -- | Create an `href` attribute from a 'Link', with given base url.
@@ -88,6 +104,6 @@ linkRelHref_ = href_ . toUrlPiece
 
 (<+>) :: T.Text -> T.Text -> T.Text
 burl <+> path
-    | T.null burl        = path
-    | T.last burl == '/' = burl <> path
-    | otherwise          = burl <> "/" <> path
+  | T.null burl = path
+  | T.last burl == '/' = burl <> path
+  | otherwise = burl <> "/" <> path
