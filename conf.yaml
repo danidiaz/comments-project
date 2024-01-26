@@ -1,3 +1,4 @@
 # configuration file for the commentary server
 #
-foo:
+runner:
+  port: 8000

@@ -1,19 +1,29 @@
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Comments.Runner where
+module Comments.Runner (RunnerConf (..), Runner (..), makeRunner) where
 
 import Comments.Api
 import Comments.Server
 import Control.Monad.IO.Class
+import Data.Aeson
 import Data.Proxy
+import GHC.Generics (Generic)
 import Network.Wai.Handler.Warp (run)
 import Servant.Server
 
+newtype RunnerConf = RunnerConf
+  { port :: Int
+  }
+  deriving stock (Generic)
+  deriving anyclass (FromJSON)
+
 newtype Runner = Runner {runServer :: IO ()}
 
-makeRunner :: CommentsServer -> Runner
-makeRunner CommentsServer {server} = Runner {runServer}
+makeRunner :: RunnerConf -> CommentsServer -> Runner
+makeRunner RunnerConf {port} CommentsServer {server} = Runner {runServer}
   where
     hoistedServer =
       hoistServer
@@ -23,4 +33,4 @@ makeRunner CommentsServer {server} = Runner {runServer}
     app :: Application
     app = serve (Proxy @Api) hoistedServer
     runServer =
-      run 8000 app
+      run port app

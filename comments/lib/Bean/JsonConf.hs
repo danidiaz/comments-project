@@ -1,17 +1,28 @@
-module Bean.JsonConf (JsonConf(..), 
-    JsonConfMissingSection(..), 
-    JsonConfUnparseableSection(..),
-    Key) where
+{-# LANGUAGE NoFieldSelectors #-}
 
-import Data.Aeson
+module Bean.JsonConf
+  ( JsonConf (..),
+    lookupSection,
+    JsonConfMissingSection (..),
+    JsonConfUnparseableSection (..),
+    Key,
+  )
+where
+
 import Control.Exception
+import Data.Aeson
 
-data JsonConf m = JsonConf {
-    lookupSection :: forall conf. FromJSON conf => Key -> m conf
-}
+data JsonConf m = JsonConf
+  { lookupSection_ :: forall conf. (FromJSON conf) => Key -> m conf
+  }
 
-data JsonConfMissingSection = JsonConfMissingSection Key deriving Show
+lookupSection :: forall m conf. (FromJSON conf) => Key -> JsonConf m -> m conf
+lookupSection key (JsonConf {lookupSection_}) = lookupSection_ key
+
+data JsonConfMissingSection = JsonConfMissingSection Key deriving (Show)
+
 instance Exception JsonConfMissingSection
 
-data JsonConfUnparseableSection = JsonConfUnparseableSection Key String deriving Show
+data JsonConfUnparseableSection = JsonConfUnparseableSection Key String deriving (Show)
+
 instance Exception JsonConfUnparseableSection
