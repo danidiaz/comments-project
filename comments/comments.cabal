@@ -37,7 +37,7 @@ executable comments
 
 library
     exposed-modules:  
-        Foo
+        Comments
     build-depends:
         base,
         servant,
