@@ -10,7 +10,7 @@ import Sqlite
 --
 -- Maybe it's dumb. On the other hand, it's more flexible and more in line with
 -- the "don't rely on the monad, accept records-of-functions instead" approach
--- used in this app.
+-- used in this app. And it makes it visible to the Cauldron's dependency graph.
 make :: (MonadReader env m) => (env -> Connection) -> CurrentConnection m
 make f =
   CurrentConnection
