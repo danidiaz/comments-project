@@ -42,6 +42,8 @@ library
         Bean.JsonConf
         Bean.JsonConf.YamlFile
         Bean.Sqlite.Pool
+        Bean.Sqlite.CurrentConnection
+        Bean.Sqlite.CurrentConnection.Env
     build-depends:
         base,
         servant,
@@ -59,5 +61,7 @@ library
         yaml,
         exceptions,
         resource-pool,
+        mtl,
+        transformers,
     hs-source-dirs:   lib
     default-language: GHC2021
