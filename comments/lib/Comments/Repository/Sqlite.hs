@@ -18,10 +18,12 @@ make ::
     CommentsRepository (ReaderT env IO)
 make logger CurrentConnection {askCurrentConnection} = do
     CommentsRepository {
-        storeComment = \c -> pure (),
+        storeComment = \Comment { commentText } -> do
+          conn <- askCurrentConnection
+          liftIO do Sqlite.Query.execute conn "insert into comment (comment_text) values (?)" do MkSolo commentText,
         listComments = do 
           conn <- askCurrentConnection
-          commentTexts :: [Solo Text] <- liftIO do Sqlite.Query.select_ conn "select comment_text from comment;"
+          commentTexts :: [Solo Text] <- liftIO do Sqlite.Query.select_ conn "select comment_text from comment"
           pure do Comment . getSolo <$> commentTexts
     }
     
