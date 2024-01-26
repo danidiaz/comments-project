@@ -29,15 +29,19 @@ executable comments
 
 library
     exposed-modules:  
+        -- modules proper to this application
         Comments
         Comments.Cauldron
         Comments.Api
         Comments.Server
         Comments.Runner
+        -- some stuff vendored from other places
         Lucid.Servant
         Servant.HTML.Lucid
+        -- things that could be generically useful
         Bean.JsonConf
         Bean.JsonConf.YamlFile
+        Bean.Sqlite.Pool
     build-depends:
         base,
         servant,
