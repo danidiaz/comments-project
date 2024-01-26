@@ -1,4 +1,4 @@
-module Bean.Sqlite.CurrentConnection where
+module Bean.Sqlite.CurrentConnection (CurrentConnection (..)) where
 
 import Sqlite
 

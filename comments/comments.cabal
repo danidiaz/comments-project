@@ -31,10 +31,12 @@ library
     exposed-modules:  
         -- modules proper to this application
         Comments
-        Comments.Cauldron
+        Comments.Repository
+        Comments.Repository.Sqlite
         Comments.Api
         Comments.Server
         Comments.Runner
+        Comments.Cauldron
         -- some stuff vendored from other places
         Lucid.Servant
         Servant.HTML.Lucid

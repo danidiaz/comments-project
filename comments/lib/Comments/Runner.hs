@@ -16,6 +16,10 @@ import GHC.Generics (Generic)
 import Network.Wai.Handler.Warp (run)
 import Servant.Server
 import Log
+import Control.Monad.Trans.Reader
+import Sqlite
+import Bean.Sqlite.Pool
+import Data.Pool.Introspection
 
 newtype RunnerConf = RunnerConf
   { port :: Int
@@ -25,13 +29,20 @@ newtype RunnerConf = RunnerConf
 
 newtype Runner = Runner {runServer :: IO ()}
 
-makeRunner :: Logger -> RunnerConf -> CommentsServer -> Runner
-makeRunner logger conf@RunnerConf {port} CommentsServer {server} = Runner {runServer}
+makeRunner :: 
+  RunnerConf -> 
+  SqlitePool -> 
+  Logger -> 
+  CommentsServer (ReaderT Connection IO) -> 
+  Runner
+makeRunner conf@RunnerConf {port} pool logger CommentsServer {server} = Runner {runServer}
   where
+    withEachRequest action = 
+      liftIO do withResource pool \Resource { resource } -> runReaderT action resource
     hoistedServer =
       hoistServer
         (Proxy @Api)
-        liftIO
+        (\action -> liftIO do withEachRequest action)
         server
     app :: Application
     app = serve (Proxy @Api) hoistedServer

@@ -1,21 +1,19 @@
-module Bean.Sqlite.CurrentConnection.Env where
+module Bean.Sqlite.CurrentConnection.Env (make) where
 
 import Sqlite
 import Control.Monad.Reader.Class
 import  Bean.Sqlite.CurrentConnection
 import Control.Exception
 
-class HasConnection env where
-    getConnection :: env -> Connection
-
-make :: (MonadReader env m, HasConnection env) => CurrentConnection m
-make = CurrentConnection {
+-- | It might seem dumb to dedicate an entire bean to store the function that extracts
+-- a 'Connection' from the Reader environment. Why not simply use 'asks' directly?
+--
+-- Maybe it's dumb. On the other hand, it's more flexible and more in line with 
+-- the "don't rely on the monad, accept records-of-functions instead" approach
+-- used in this app.
+make :: (MonadReader env m) => (env -> Connection) -> CurrentConnection m
+make f = CurrentConnection {
     askCurrentConnection = do
-        conn <- asks getConnection
+        conn <- asks f
         pure conn
-
 }
-
-data ConnectionMissing = ConnectionMissing deriving Show
-
-instance Exception ConnectionMissing

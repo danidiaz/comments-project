@@ -9,10 +9,11 @@ import Log
 import Lucid
 import Lucid.Html5
 import Servant
+import Control.Monad.Trans.Reader
 
-newtype CommentsServer = CommentsServer {server :: ServerT Api IO}
+newtype CommentsServer m = CommentsServer {server :: ServerT Api m}
 
-makeCommentsServer :: Logger -> CommentsServer
+makeCommentsServer :: Logger -> CommentsServer (ReaderT env IO)
 makeCommentsServer logger = CommentsServer {server}
   where
     server =
