@@ -24,6 +24,8 @@ import Log
 import Network.Wai.Handler.Warp (run)
 import Servant.Server
 import Sqlite
+import Control.Monad.Trans.Except
+import Data.Coerce
 
 newtype RunnerConf = RunnerConf
   { port :: Int
@@ -37,16 +39,16 @@ makeRunner ::
   RunnerConf ->
   SqlitePool ->
   Logger ->
-  CommentsServer (ReaderT Connection IO) ->
+  CommentsServer (ReaderT Connection Handler) ->
   Runner
 makeRunner conf@RunnerConf {port} pool logger CommentsServer {server} = Runner {runServer}
   where
     withEachRequest action =
-      liftIO do withResource pool \Resource {resource} -> runReaderT action resource
+      Handler do ExceptT do withResource pool \Resource {resource} -> runHandler do runReaderT action resource
     hoistedServer =
       hoistServer
         (Proxy @Api)
-        (\action -> liftIO do withEachRequest action)
+        withEachRequest
         server
     app :: Application
     app = serve (Proxy @Api) hoistedServer

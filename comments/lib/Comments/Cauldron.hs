@@ -23,6 +23,7 @@ import Servant.Server (Handler)
 import Sqlite (Connection)
 
 type M = ReaderT Connection IO
+type MH = ReaderT Connection Handler
 
 cauldron :: Cauldron Managed
 cauldron = do
@@ -36,6 +37,6 @@ cauldron = do
     & insert @SqlitePool do makeBean do pack effect \conf -> managed do Bean.Sqlite.Pool.make conf
     & insert @(CurrentConnection M) do makeBean do pack value do Bean.Sqlite.CurrentConnection.Env.make id
     & insert @(CommentsRepository M) do makeBean do pack value do Comments.Repository.Sqlite.make
-    & insert @(CommentsServer M) do makeBean do pack value makeCommentsServer
+    & insert @(CommentsServer MH) do makeBean do pack value makeCommentsServer
     & insert @RunnerConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection @IO "runner"
     & insert @Runner do makeBean do pack value makeRunner
