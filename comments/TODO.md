@@ -1,3 +1,3 @@
-- Create an sqlite connection pool.
-- Associate each connection pool with a request?
-- Some hack to emulate request-scoped beans, so that knowledge of the ReaderT doesn't infect all the beans? 
+- lazy-bracket for connections?
+- some "current connection" decorator? Like logging pool info or the like.
+- file server bean, with its own configuration? No need to split api and server here. Serve CSS.
