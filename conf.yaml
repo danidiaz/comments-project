@@ -2,6 +2,7 @@
 #
 runner:
   port: 8000
+  staticAssetsFolder: "static"
 sqlite:
   databaseFile: "db.sqlite"
   poolSize: 10

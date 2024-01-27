@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -24,11 +25,16 @@ import Data.Proxy
 import GHC.Generics (Generic)
 import Log
 import Network.Wai.Handler.Warp (run)
+import Servant.API
 import Servant.Server
+import Servant.Server.StaticFiles
 import Sqlite
 
-newtype RunnerConf = RunnerConf
-  { port :: Int
+data RunnerConf = RunnerConf
+  { port :: Int,
+    -- Perhaps the static file server could be its own bean with its own
+    -- configuration, but let's not overcomplicate things.
+    staticAssetsFolder :: FilePath
   }
   deriving stock (Generic)
   deriving anyclass (FromJSON, ToJSON)
@@ -41,7 +47,7 @@ makeRunner ::
   Logger ->
   CommentsServer (ReaderT Connection Handler) ->
   Runner
-makeRunner conf@RunnerConf {port} pool logger CommentsServer {server} = Runner {runServer}
+makeRunner conf@RunnerConf {port, staticAssetsFolder} pool logger CommentsServer {server} = Runner {runServer}
   where
     withEachRequest action =
       Handler do ExceptT do withResource pool \Resource {resource} -> runHandler do runReaderT action resource
@@ -50,8 +56,9 @@ makeRunner conf@RunnerConf {port} pool logger CommentsServer {server} = Runner {
         (Proxy @Api)
         withEachRequest
         server
+    staticAssetsServer = serveDirectoryWebApp staticAssetsFolder
     app :: Application
-    app = serve (Proxy @Api) hoistedServer
+    app = serve (Proxy @(Api :<|> "static" :> Raw)) do hoistedServer :<|> staticAssetsServer
     runServer = do
       runLogT "runner" logger defaultLogLevel do logInfo "Runner started" conf
       run port app
