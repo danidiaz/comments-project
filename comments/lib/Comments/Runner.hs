@@ -15,8 +15,10 @@ import Bean.Sqlite.Pool
 import Comments.Api
 import Comments.Server
 import Control.Monad.IO.Class
+import Control.Monad.Trans.Except
 import Control.Monad.Trans.Reader
 import Data.Aeson
+import Data.Coerce
 import Data.Pool.Introspection
 import Data.Proxy
 import GHC.Generics (Generic)
@@ -24,8 +26,6 @@ import Log
 import Network.Wai.Handler.Warp (run)
 import Servant.Server
 import Sqlite
-import Control.Monad.Trans.Except
-import Data.Coerce
 
 newtype RunnerConf = RunnerConf
   { port :: Int

@@ -13,6 +13,8 @@ cabal build all
 cabal run comments
 ```
 
+And navigate to `http://localhost:8000/comments`.
+
 # Useful while developing
 
 ```

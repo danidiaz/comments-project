@@ -66,5 +66,6 @@ library
         mtl,
         transformers,
         http-api-data,
+        http-types,
     hs-source-dirs:   lib
     default-language: GHC2021

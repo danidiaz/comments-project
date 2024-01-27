@@ -13,7 +13,7 @@ import Servant.API.NamedRoutes
 import Servant.HTML.Lucid
 import Web.FormUrlEncoded
 
-type Api = NamedRoutes Comments
+type Api = "comments" :> NamedRoutes Comments
 
 data Comments mode = Comments
   { mainPage :: mode :- Get '[HTML] (Html ()),

@@ -23,6 +23,7 @@ import Servant.Server (Handler)
 import Sqlite (Connection)
 
 type M = ReaderT Connection IO
+
 type MH = ReaderT Connection Handler
 
 cauldron :: Cauldron Managed
