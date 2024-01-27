@@ -1,6 +1,6 @@
 # How to run
 
-After cloning, checkout the submodules:
+After cloning the project repository, checkout the submodules:
 
 ```
 git submodule init
