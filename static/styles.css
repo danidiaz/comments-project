@@ -14,9 +14,20 @@ main {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    padding: 2rem;
 }
 
 main div:first-of-type {
     min-height: 0;
     overflow-y: auto;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form textarea {
+    width: 100%;
+    resize: none;
 }

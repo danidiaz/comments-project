@@ -49,7 +49,7 @@ makeCommentsServer logger CommentsRepository {storeComment, listComments} =
                       Data.Foldable.for_ comments \Comment {commentText} -> do
                         p_ do toHtml commentText
                     form_ [method_ "post"] do
-                      textarea_ [id_ "comment", name_ "commentText", rows_ "5", cols_ "33"] mempty
+                      div_ do textarea_ [id_ "comment", name_ "commentText", rows_ "5"] mempty
                       input_ [type_ "submit", value_ "Send"],
           addComment = \IncomingComment {commentText} -> handlerizeE do
             storeComment Comment {commentText}
