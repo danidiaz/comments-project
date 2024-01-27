@@ -1,6 +1,13 @@
 # How to run
 
-Before the first time:
+After cloning, checkout the submodules:
+
+```
+git submodule init
+git submodule update
+```
+
+Before running the server for the first time:
 
 ```
 sqlite3 db.sqlite < schema.sql
