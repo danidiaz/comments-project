@@ -40,7 +40,7 @@ ormolu --mode inplace $(git ls-files '*.hs')
 - Beans often have an ["interface"](comments/lib/Comments/Repository.hs) module
 which defines a record-of-functions type, and an
 ["implemementation"](comments/lib/Comments/Repository/Sqlite.hs) module
-(potentially more than one) which provides a constructor record-of-functions.
+(potentially more than one) which provides a constructor for the record-of-functions.
 
   This is not a hard rule; for other beans the record-of-functions and the
   constructor are defined in the same module.
