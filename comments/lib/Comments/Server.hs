@@ -44,12 +44,13 @@ makeCommentsServer logger CommentsRepository {storeComment, listComments} =
                   title_ "comments"
                   link_ [rel_ "stylesheet", type_ "text/css", href_ "/static/styles.css"]
                 body_ do
-                  div_ do
-                    Data.Foldable.for_ comments \Comment {commentText} -> do
-                      p_ do toHtml commentText
-                  form_ [method_ "post"] do
-                    textarea_ [id_ "comment", name_ "commentText", rows_ "5", cols_ "33"] mempty
-                    input_ [type_ "submit", value_ "Send"],
+                  main_ do
+                    div_ do
+                      Data.Foldable.for_ comments \Comment {commentText} -> do
+                        p_ do toHtml commentText
+                    form_ [method_ "post"] do
+                      textarea_ [id_ "comment", name_ "commentText", rows_ "5", cols_ "33"] mempty
+                      input_ [type_ "submit", value_ "Send"],
           addComment = \IncomingComment {commentText} -> handlerizeE do
             storeComment Comment {commentText}
             -- \| https://hachyderm.io/@DiazCarrete/111841132226571708
