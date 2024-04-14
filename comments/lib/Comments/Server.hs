@@ -10,6 +10,7 @@ module Comments.Server (CommentsServer (..), makeCommentsServer) where
 import Comments
 import Comments.Api
 import Comments.Repository
+import Control.Monad.Trans.Except
 import Data.Coerce
 import Data.Foldable
 import Log
@@ -20,7 +21,6 @@ import Network.HTTP.Types.Header
 import Servant
 import Servant.API
 import Servant.Server (Handler)
-import Control.Monad.Trans.Except
 
 newtype CommentsServer = CommentsServer {server :: Server Api}
 

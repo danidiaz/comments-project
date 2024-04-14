@@ -16,7 +16,7 @@ make ::
   Logger ->
   Current Connection ->
   CommentsRepository
-make logger Current { askCurrent } = do
+make logger Current {askCurrent} = do
   CommentsRepository
     { storeComment = \Comment {commentText} -> do
         conn <- askCurrent

@@ -7,13 +7,13 @@ module Bean.JsonConf.YamlFile
 where
 
 import Bean.JsonConf
+import Control.Exception
 import Control.Monad.IO.Class
 import Data.Aeson (Value)
 import Data.Aeson.KeyMap (KeyMap)
 import Data.Aeson.KeyMap qualified
 import Data.Aeson.Types
 import Data.Yaml.Config
-import Control.Exception
 
 make ::
   -- | Usually pass the result of 'Data.Yaml.Config.loadYamlSettings' here.

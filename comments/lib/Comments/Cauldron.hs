@@ -3,11 +3,11 @@
 
 module Comments.Cauldron (cauldron) where
 
-import Bean.ThreadLocal
 import Bean.Current
 import Bean.JsonConf
 import Bean.JsonConf.YamlFile qualified
 import Bean.Sqlite.Pool
+import Bean.ThreadLocal
 import Cauldron
 import Cauldron.Managed
 import Comments.Repository

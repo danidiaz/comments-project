@@ -45,31 +45,33 @@ newtype Runner = Runner {runServer :: IO ()}
 makeRunner ::
   RunnerConf ->
   SqlitePool ->
-  ThreadLocal Connection -> 
+  ThreadLocal Connection ->
   Logger ->
   CommentsServer ->
   Runner
-makeRunner 
-  conf@RunnerConf {port, staticAssetsFolder} 
-  pool 
-  threadLocalConnection 
-  logger 
+makeRunner
+  conf@RunnerConf {port, staticAssetsFolder}
+  pool
+  threadLocalConnection
+  logger
   CommentsServer {server} = Runner {runServer}
-  where
-    withEachRequest action =
-      Handler 
-       do ExceptT 
-            do withResource pool \Resource {resource} -> 
-                  withThreadLocal threadLocalConnection resource do 
+    where
+      withEachRequest action =
+        Handler
+          do
+            ExceptT
+              do
+                withResource pool \Resource {resource} ->
+                  withThreadLocal threadLocalConnection resource do
                     runHandler action
-    hoistedServer =
-      hoistServer
-        (Proxy @Api)
-        withEachRequest
-        server
-    staticAssetsServer = serveDirectoryWebApp staticAssetsFolder
-    app :: Application
-    app = serve (Proxy @(Api :<|> "static" :> Raw)) do hoistedServer :<|> staticAssetsServer
-    runServer = do
-      runLogT "runner" logger defaultLogLevel do logInfo "Runner started" conf
-      run port app
+      hoistedServer =
+        hoistServer
+          (Proxy @Api)
+          withEachRequest
+          server
+      staticAssetsServer = serveDirectoryWebApp staticAssetsFolder
+      app :: Application
+      app = serve (Proxy @(Api :<|> "static" :> Raw)) do hoistedServer :<|> staticAssetsServer
+      runServer = do
+        runLogT "runner" logger defaultLogLevel do logInfo "Runner started" conf
+        run port app
