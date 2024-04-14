@@ -33,9 +33,9 @@ makeThreadLocal = MakeThreadLocal <$> newIORef Map.empty
 withThreadLocal :: forall v a. (Typeable v) => ThreadLocal v -> v -> IO a -> IO a
 withThreadLocal (MakeThreadLocal ref) v action = do
   threadId <- myThreadId
-  bracket_
+  bracket
     do
-      u <- atomicModifyIORef' ref \theMap ->
+      atomicModifyIORef' ref \theMap ->
         do
           let alteration = \case
                 Nothing -> do
@@ -45,13 +45,21 @@ withThreadLocal (MakeThreadLocal ref) v action = do
                   (throw ex, Nothing)
           let r = Map.alterF alteration threadId theMap
           swap r
-      -- It's important to evaluate the () here to catch possible
-      -- exceptions!  I guess using an MVar instead of an IORef would allow
-      -- us to throw exceptions using throwIO instead of throw, which is
-      -- more precise and understandable. But would the MVar be slower?
-      evaluate u
-    do atomicModifyIORef' ref \theMap -> (Map.delete threadId theMap, ())
-    action
+    -- Doc says that operations on IORefs are  are guaranteed not to be interruptible.
+    -- https://hackage.haskell.org/package/base-4.19.1.0/docs/Control-Exception.html#g:13
+    -- So no need to worry about exceptions while removing the entry I guess.
+    do \_ -> atomicModifyIORef' ref \theMap -> (Map.delete threadId theMap, ())
+    do \u -> 
+            do
+                -- It's important to evaluate the () here to catch possible
+                -- exceptions! I guess using an MVar instead of an IORef would allow
+                -- us to throw exceptions using throwIO instead of throw, which is
+                -- more precise and understandable. But would the MVar be slower?
+                -- 
+                -- Also we need to evaluate outside of the allocation action because
+                -- raising the exception there could prevent the deletion to run.
+                evaluate u
+                action
 
 data ThreadLocalValueAlreadyExists where
   MakeThreadLocalValueAlreadyExists :: ThreadId -> TypeRep -> ThreadLocalValueAlreadyExists

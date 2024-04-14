@@ -7,7 +7,6 @@ import Bean.Current
 import Comments
 import Comments.Repository
 import Control.Monad.IO.Class
-import Control.Monad.Trans.Reader
 import Data.Text
 import Data.Tuple
 import Log

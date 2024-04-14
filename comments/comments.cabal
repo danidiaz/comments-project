@@ -63,7 +63,7 @@ library
         warp,
         yaml,
         resource-pool,
-        mtl,
+        -- mtl,
         transformers,
         http-api-data,
         http-types,
