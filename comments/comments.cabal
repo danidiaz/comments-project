@@ -62,7 +62,6 @@ library
         http-media,
         warp,
         yaml,
-        exceptions,
         resource-pool,
         mtl,
         transformers,

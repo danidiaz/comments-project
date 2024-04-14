@@ -12,11 +12,11 @@ where
 import Control.Exception
 import Data.Aeson
 
-data JsonConf m = JsonConf
-  { lookupSection_ :: forall conf. (FromJSON conf) => Key -> m conf
+data JsonConf = JsonConf
+  { lookupSection_ :: forall conf. (FromJSON conf) => Key -> IO conf
   }
 
-lookupSection :: forall m conf. (FromJSON conf) => Key -> JsonConf m -> m conf
+lookupSection :: forall conf. (FromJSON conf) => Key -> JsonConf -> IO conf
 lookupSection key (JsonConf {lookupSection_}) = lookupSection_ key
 
 data JsonConfMissingSection = JsonConfMissingSection Key deriving (Show)

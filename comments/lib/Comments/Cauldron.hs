@@ -28,13 +28,13 @@ cauldron = do
   emptyCauldron
     & do
       let makeJsonConf = Bean.JsonConf.YamlFile.make do Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
-      insert @(JsonConf IO) do makeBean do liftConIO do pack effect do makeJsonConf
+      insert @JsonConf do makeBean do liftConIO do pack effect do makeJsonConf
     & insert @Logger do makeBean do pack effect do managed withStdOutLogger
-    & insert @SqlitePoolConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection @IO "sqlite"
+    & insert @SqlitePoolConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection "sqlite"
     & insert @SqlitePool do makeBean do pack effect \conf -> managed do Bean.Sqlite.Pool.make conf
     & insert @(ThreadLocal Connection) do makeBean do liftConIO do pack effect do makeThreadLocal
     & insert @(Current Connection) do makeBean do pack value do makeThreadLocalCurrent
     & insert @CommentsRepository do makeBean do pack value do Comments.Repository.Sqlite.make
     & insert @CommentsServer do makeBean do pack value makeCommentsServer
-    & insert @RunnerConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection @IO "runner"
+    & insert @RunnerConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection "runner"
     & insert @Runner do makeBean do pack value makeRunner

@@ -10,9 +10,7 @@ module Comments.Server (CommentsServer (..), makeCommentsServer) where
 import Comments
 import Comments.Api
 import Comments.Repository
-import Control.Monad.Catch (MonadThrow (throwM))
 import Control.Monad.Trans.Except
-import Control.Monad.Trans.Reader
 import Data.Coerce
 import Data.Foldable
 import Log

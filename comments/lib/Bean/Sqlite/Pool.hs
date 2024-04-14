@@ -7,7 +7,7 @@
 
 module Bean.Sqlite.Pool (SqlitePoolConf, SqlitePool, make) where
 
-import Control.Monad.Catch (bracket)
+import Control.Exception
 import Data.Aeson
 import Data.Pool.Introspection
 import Data.Text
