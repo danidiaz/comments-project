@@ -13,6 +13,7 @@ module Comments.Runner
 where
 
 import Bean.Sqlite.Pool
+import Bean.ThreadLocal
 import Comments.Api
 import Comments.Server
 import Control.Monad.IO.Class
@@ -44,13 +45,24 @@ newtype Runner = Runner {runServer :: IO ()}
 makeRunner ::
   RunnerConf ->
   SqlitePool ->
+  ThreadLocal Connection -> 
   Logger ->
   CommentsServer (ReaderT Connection Handler) ->
   Runner
-makeRunner conf@RunnerConf {port, staticAssetsFolder} pool logger CommentsServer {server} = Runner {runServer}
+makeRunner 
+  conf@RunnerConf {port, staticAssetsFolder} 
+  pool 
+  threadLocalConnection 
+  logger 
+  CommentsServer {server} = Runner {runServer}
   where
     withEachRequest action =
-      Handler do ExceptT do withResource pool \Resource {resource} -> runHandler do runReaderT action resource
+      Handler 
+       do ExceptT 
+            do withResource pool \Resource {resource} -> 
+                  withThreadLocal threadLocalConnection resource do 
+                    runHandler do 
+                        runReaderT action resource
     hoistedServer =
       hoistServer
         (Proxy @Api)
