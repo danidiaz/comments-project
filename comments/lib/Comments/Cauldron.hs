@@ -3,6 +3,8 @@
 
 module Comments.Cauldron (cauldron) where
 
+import Bean.ThreadLocal
+import Bean.Current
 import Bean.JsonConf
 import Bean.JsonConf.YamlFile qualified
 import Bean.Sqlite.CurrentConnection
@@ -36,6 +38,8 @@ cauldron = do
     & insert @Logger do makeBean do pack effect do managed withStdOutLogger
     & insert @SqlitePoolConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection @IO "sqlite"
     & insert @SqlitePool do makeBean do pack effect \conf -> managed do Bean.Sqlite.Pool.make conf
+    & insert @(ThreadLocal Connection) do makeBean do liftConIO do pack effect do makeThreadLocal
+    & insert @(Current Connection) do makeBean do pack value do makeThreadLocalCurrent
     & insert @(CurrentConnection M) do makeBean do pack value do Bean.Sqlite.CurrentConnection.Env.make id
     & insert @(CommentsRepository M) do makeBean do pack value do Comments.Repository.Sqlite.make
     & insert @(CommentsServer MH) do makeBean do pack value makeCommentsServer
