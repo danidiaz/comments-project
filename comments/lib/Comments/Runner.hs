@@ -47,7 +47,7 @@ makeRunner ::
   SqlitePool ->
   ThreadLocal Connection -> 
   Logger ->
-  CommentsServer (ReaderT Connection Handler) ->
+  CommentsServer ->
   Runner
 makeRunner 
   conf@RunnerConf {port, staticAssetsFolder} 
@@ -61,8 +61,7 @@ makeRunner
        do ExceptT 
             do withResource pool \Resource {resource} -> 
                   withThreadLocal threadLocalConnection resource do 
-                    runHandler do 
-                        runReaderT action resource
+                    runHandler action
     hoistedServer =
       hoistServer
         (Proxy @Api)

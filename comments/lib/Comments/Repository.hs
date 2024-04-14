@@ -2,7 +2,7 @@ module Comments.Repository where
 
 import Comments
 
-data CommentsRepository m = CommentsRepository
-  { storeComment :: Comment -> m (),
-    listComments :: m [Comment]
+data CommentsRepository = CommentsRepository
+  { storeComment :: Comment -> IO (),
+    listComments :: IO [Comment]
   }

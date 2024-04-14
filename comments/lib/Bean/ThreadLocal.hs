@@ -43,7 +43,7 @@ withThreadLocal (MakeThreadLocal ref) v action = do
                 Just _ -> do
                   let ex = MakeThreadLocalValueAlreadyExists threadId (typeRep (Proxy @v))
                   (throw ex, Nothing)
-          let r = Map.alterF ((,) ()) threadId theMap
+          let r = Map.alterF alteration threadId theMap
           swap r
       -- It's important to evaluate the () here to catch possible
       -- exceptions!  I guess using an MVar instead of an IORef would allow

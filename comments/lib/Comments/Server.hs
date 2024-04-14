@@ -24,12 +24,12 @@ import Servant
 import Servant.API
 import Servant.Server (Handler)
 
-newtype CommentsServer m = CommentsServer {server :: ServerT Api m}
+newtype CommentsServer = CommentsServer {server :: Server Api}
 
 makeCommentsServer ::
   Logger ->
-  CommentsRepository (ReaderT env IO) ->
-  CommentsServer (ReaderT env Handler)
+  CommentsRepository ->
+  CommentsServer
 makeCommentsServer logger CommentsRepository {storeComment, listComments} =
   CommentsServer {server}
   where
@@ -62,8 +62,8 @@ makeCommentsServer logger CommentsRepository {storeComment, listComments} =
 links :: Comments (AsLink Link)
 links = safeLink (Proxy @Api) (Proxy @Api)
 
-handlerize :: ReaderT env IO r -> ReaderT env Handler r
+handlerize :: IO r -> Handler r
 handlerize action = coerce do fmap (Right @ServerError) action
 
-handlerizeE :: ReaderT env IO (Either ServerError r) -> ReaderT env Handler r
+handlerizeE :: IO (Either ServerError r) -> Handler r
 handlerizeE = coerce

@@ -7,8 +7,6 @@ import Bean.ThreadLocal
 import Bean.Current
 import Bean.JsonConf
 import Bean.JsonConf.YamlFile qualified
-import Bean.Sqlite.CurrentConnection
-import Bean.Sqlite.CurrentConnection.Env qualified
 import Bean.Sqlite.Pool
 import Cauldron
 import Cauldron.Managed
@@ -24,10 +22,6 @@ import Log.Backend.StandardOutput
 import Servant.Server (Handler)
 import Sqlite (Connection)
 
-type M = ReaderT Connection IO
-
-type MH = ReaderT Connection Handler
-
 cauldron :: Cauldron Managed
 cauldron = do
   let liftConIO = hoistConstructor liftIO
@@ -40,8 +34,7 @@ cauldron = do
     & insert @SqlitePool do makeBean do pack effect \conf -> managed do Bean.Sqlite.Pool.make conf
     & insert @(ThreadLocal Connection) do makeBean do liftConIO do pack effect do makeThreadLocal
     & insert @(Current Connection) do makeBean do pack value do makeThreadLocalCurrent
-    & insert @(CurrentConnection M) do makeBean do pack value do Bean.Sqlite.CurrentConnection.Env.make id
-    & insert @(CommentsRepository M) do makeBean do pack value do Comments.Repository.Sqlite.make
-    & insert @(CommentsServer MH) do makeBean do pack value makeCommentsServer
+    & insert @CommentsRepository do makeBean do pack value do Comments.Repository.Sqlite.make
+    & insert @CommentsServer do makeBean do pack value makeCommentsServer
     & insert @RunnerConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection @IO "runner"
     & insert @Runner do makeBean do pack value makeRunner

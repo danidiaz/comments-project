@@ -45,8 +45,6 @@ library
         Bean.JsonConf
         Bean.JsonConf.YamlFile
         Bean.Sqlite.Pool
-        Bean.Sqlite.CurrentConnection
-        Bean.Sqlite.CurrentConnection.Env
         Bean.Current
         Bean.ThreadLocal
     build-depends:
