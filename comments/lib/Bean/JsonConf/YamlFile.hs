@@ -7,7 +7,7 @@ module Bean.JsonConf.YamlFile
 where
 
 import Bean.JsonConf
-import Control.Monad.Catch (MonadThrow, throwM)
+import Control.Exception
 import Control.Monad.IO.Class
 import Data.Aeson (Value)
 import Data.Aeson.KeyMap (KeyMap)
@@ -16,18 +16,17 @@ import Data.Aeson.Types
 import Data.Yaml.Config
 
 make ::
-  (MonadThrow m) =>
   -- | Usually pass the result of 'Data.Yaml.Config.loadYamlSettings' here.
   IO (KeyMap Value) ->
-  IO (JsonConf m)
+  IO JsonConf
 make action = do
-  keyMap :: KeyMap Value <- liftIO action
+  keyMap :: KeyMap Value <- action
   pure
     JsonConf
       { lookupSection_ = \sectionKey -> do
           case Data.Aeson.KeyMap.lookup sectionKey keyMap of
-            Nothing -> throwM do JsonConfMissingSection sectionKey
+            Nothing -> throwIO do JsonConfMissingSection sectionKey
             Just foo -> case fromJSON foo of
-              Error message -> throwM do JsonConfUnparseableSection sectionKey message
+              Error message -> throwIO do JsonConfUnparseableSection sectionKey message
               Success confSection -> pure confSection
       }

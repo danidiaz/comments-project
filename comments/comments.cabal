@@ -45,8 +45,8 @@ library
         Bean.JsonConf
         Bean.JsonConf.YamlFile
         Bean.Sqlite.Pool
-        Bean.Sqlite.CurrentConnection
-        Bean.Sqlite.CurrentConnection.Env
+        Bean.Current
+        Bean.ThreadLocal
     build-depends:
         base,
         servant,
@@ -62,12 +62,12 @@ library
         http-media,
         warp,
         yaml,
-        exceptions,
         resource-pool,
-        mtl,
+        -- mtl,
         transformers,
         http-api-data,
         http-types,
+        unordered-containers,
     hs-source-dirs:   lib
     default-language: GHC2021
     ghc-options: -threaded
