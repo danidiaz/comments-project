@@ -40,7 +40,6 @@ library
         Comments.Cauldron
         -- some stuff vendored from other places
         Lucid.Servant
-        Servant.HTML.Lucid
         -- things that could be generically useful
         Bean.JsonConf
         Bean.JsonConf.YamlFile
@@ -52,6 +51,7 @@ library
         servant,
         servant-server,
         lucid2,
+        dani-servant-lucid2,
         text,
         bytestring,
         containers,

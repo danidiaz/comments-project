@@ -4,3 +4,6 @@
 [submodule "cauldron"]
 	path = cauldron
 	url = https://github.com/danidiaz/cauldron.git
+[submodule "dani-servant-lucid2"]
+	path = dani-servant-lucid2
+	url = https://github.com/danidiaz/dani-servant-lucid2.git
