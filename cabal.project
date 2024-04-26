@@ -1,5 +1,4 @@
 packages:
     cauldron
     dani-sqlite
-    dani-servant-lucid2
     comments
