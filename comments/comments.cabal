@@ -22,7 +22,6 @@ executable comments
     -- other-extensions:
     build-depends:
         base,
-        cauldron,
         comments,
     hs-source-dirs:   app
     default-language: GHC2021
@@ -31,13 +30,13 @@ executable comments
 library
     exposed-modules:  
         -- modules proper to this application
+        Comments.Main
         Comments
         Comments.Repository
         Comments.Repository.Sqlite
         Comments.Api
         Comments.Server
         Comments.Runner
-        Comments.Cauldron
         -- some stuff vendored from other places
         Lucid.Servant
         -- things that could be generically useful

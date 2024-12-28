@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Comments.Cauldron (cauldron) where
+module Comments.Main (appMain) where
 
 import Bean.Current
 import Bean.JsonConf
@@ -15,6 +15,7 @@ import Comments.Repository
 import Comments.Repository.Sqlite qualified
 import Comments.Runner
 import Comments.Server
+import Control.Exception (throwIO)
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Reader
 import Data.Function ((&))
@@ -23,9 +24,18 @@ import Log.Backend.StandardOutput
 import Servant.Server (Handler)
 import Sqlite (Connection)
 
+appMain :: IO ()
+appMain = do
+  let depGraph = getDependencyGraph cauldron
+  writeAsDot (defaultStyle Nothing) "beans.dot" $ collapseToPrimaryBeans $ removeDecos $ removeSecondaryBeans $ depGraph
+  cook forbidDepCycles cauldron & either throwIO \action -> with action \beans -> do
+    case taste beans of
+      Nothing -> error "no bean found"
+      Just Runner {runServer} -> runServer
+
 cauldron :: Cauldron Managed
 cauldron =
-  [ let makeJsonConf = Bean.JsonConf.YamlFile.make do Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
+  [ let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
      in recipe @JsonConf $ liftConIO $ eff $ wire makeJsonConf,
     recipe @Logger $ eff $ wire $ managed withStdOutLogger,
     recipe @SqlitePoolConf $ liftConIO $ eff $ wire $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite",
