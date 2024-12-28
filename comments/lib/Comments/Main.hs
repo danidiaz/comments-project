@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Comments.Main (appMain) where
+module Comments.Main (appMain, manuallyWiredAppMain) where
 
 import Bean.Current
 import Bean.JsonConf
@@ -49,3 +49,22 @@ cauldron =
   ]
   where
     liftConIO = hoistConstructor liftIO
+
+manuallyWired :: Managed Runner
+manuallyWired = do
+  jsonConfBean <-
+    let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
+     in liftIO $ makeJsonConf
+  loggerBean <- managed withStdOutLogger
+  sqlitePoolConfBean <- liftIO $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConfBean
+  sqlitePoolBean <- managed $ Bean.Sqlite.Pool.make sqlitePoolConfBean
+  threadLocalBean <- liftIO makeThreadLocal
+  let currentConnectionBean = makeThreadLocalCurrent threadLocalBean
+  let commentsRepossitoryBean = Comments.Repository.Sqlite.make loggerBean currentConnectionBean
+  let commentsServerBean = makeCommentsServer loggerBean commentsRepossitoryBean
+  runnerConfBean <- liftIO $ Bean.JsonConf.lookupSection @RunnerConf "runner" jsonConfBean
+  pure $ makeRunner runnerConfBean sqlitePoolBean threadLocalBean loggerBean commentsServerBean
+
+manuallyWiredAppMain :: IO ()
+manuallyWiredAppMain = do
+  with manuallyWired \Runner {runServer} -> runServer
