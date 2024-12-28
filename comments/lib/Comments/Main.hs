@@ -52,18 +52,18 @@ cauldron =
 
 manuallyWired :: Managed Runner
 manuallyWired = do
-  jsonConfBean <-
+  jsonConf <-
     let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
      in liftIO $ makeJsonConf
-  loggerBean <- managed withStdOutLogger
-  sqlitePoolConfBean <- liftIO $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConfBean
-  sqlitePoolBean <- managed $ Bean.Sqlite.Pool.make sqlitePoolConfBean
-  threadLocalBean <- liftIO makeThreadLocal
-  let currentConnectionBean = makeThreadLocalCurrent threadLocalBean
-  let commentsRepossitoryBean = Comments.Repository.Sqlite.make loggerBean currentConnectionBean
-  let commentsServerBean = makeCommentsServer loggerBean commentsRepossitoryBean
-  runnerConfBean <- liftIO $ Bean.JsonConf.lookupSection @RunnerConf "runner" jsonConfBean
-  pure $ makeRunner runnerConfBean sqlitePoolBean threadLocalBean loggerBean commentsServerBean
+  logger <- managed withStdOutLogger
+  sqlitePoolConf <- liftIO $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
+  sqlitePool <- managed $ Bean.Sqlite.Pool.make sqlitePoolConf
+  threadLocal <- liftIO makeThreadLocal
+  let currentConnection = makeThreadLocalCurrent threadLocal
+  let commentsRepossitory = Comments.Repository.Sqlite.make logger currentConnection
+  let commentsServer = makeCommentsServer logger commentsRepossitory
+  runnerConf <- liftIO $ Bean.JsonConf.lookupSection @RunnerConf "runner" jsonConf
+  pure $ makeRunner runnerConf sqlitePool threadLocal logger commentsServer
 
 manuallyWiredAppMain :: IO ()
 manuallyWiredAppMain = do
