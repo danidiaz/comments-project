@@ -6,17 +6,14 @@ import Cauldron
 import Cauldron.Managed
 import Comments.Cauldron (cauldron)
 import Comments.Runner (Runner (..))
+import Control.Exception (throwIO)
+import Data.Function ((&))
 
 main :: IO ()
-main =
-  case cook forbidDepCycles cauldron of
-    Left badBeans -> print badBeans
-    Right (depGraph, action) -> do
-      exportToDot
-        defaultStepToText
-        "beans.dot"
-        do collapsePrimaryBeans do removeDecos do removeSecondaryBeans do depGraph
-      with action \boiledBeans -> do
-        case taste boiledBeans of
-          Nothing -> error "no bean found"
-          Just Runner {runServer} -> runServer
+main = do
+  let depGraph = getDependencyGraph cauldron
+  writeAsDot (defaultStyle Nothing) "beans.dot" $ collapseToPrimaryBeans $ removeDecos $ removeSecondaryBeans $ depGraph
+  cook forbidDepCycles cauldron & either throwIO \action -> with action \beans -> do
+    case taste beans of
+      Nothing -> error "no bean found"
+      Just Runner {runServer} -> runServer

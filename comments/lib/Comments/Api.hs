@@ -9,8 +9,8 @@ import GHC.Generics
 import GHC.Generics (Generic)
 import Lucid
 import Servant.API
-import Servant.API.NamedRoutes
 import Servant.API.ContentTypes.Lucid
+import Servant.API.NamedRoutes
 import Web.FormUrlEncoded
 
 type Api = "comments" :> NamedRoutes Comments

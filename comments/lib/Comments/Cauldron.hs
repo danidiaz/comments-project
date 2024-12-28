@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Comments.Cauldron (cauldron) where
@@ -23,18 +24,18 @@ import Servant.Server (Handler)
 import Sqlite (Connection)
 
 cauldron :: Cauldron Managed
-cauldron = do
-  let liftConIO = hoistConstructor liftIO
-  emptyCauldron
-    & do
-      let makeJsonConf = Bean.JsonConf.YamlFile.make do Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
-      insert @JsonConf do makeBean do liftConIO do pack effect do makeJsonConf
-    & insert @Logger do makeBean do pack effect do managed withStdOutLogger
-    & insert @SqlitePoolConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection "sqlite"
-    & insert @SqlitePool do makeBean do pack effect \conf -> managed do Bean.Sqlite.Pool.make conf
-    & insert @(ThreadLocal Connection) do makeBean do liftConIO do pack effect do makeThreadLocal
-    & insert @(Current Connection) do makeBean do pack value do makeThreadLocalCurrent
-    & insert @CommentsRepository do makeBean do pack value do Comments.Repository.Sqlite.make
-    & insert @CommentsServer do makeBean do pack value makeCommentsServer
-    & insert @RunnerConf do makeBean do liftConIO do pack effect do Bean.JsonConf.lookupSection "runner"
-    & insert @Runner do makeBean do pack value makeRunner
+cauldron =
+  [ let makeJsonConf = Bean.JsonConf.YamlFile.make do Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
+     in recipe @JsonConf $ liftConIO $ eff $ wire makeJsonConf,
+    recipe @Logger $ eff $ wire $ managed withStdOutLogger,
+    recipe @SqlitePoolConf $ liftConIO $ eff $ wire $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite",
+    recipe @SqlitePool $ eff $ wire \conf -> managed $ Bean.Sqlite.Pool.make conf,
+    recipe @(ThreadLocal Connection) $ liftConIO $ eff $ wire makeThreadLocal,
+    recipe @(Current Connection) $ val $ wire makeThreadLocalCurrent,
+    recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
+    recipe @CommentsServer $ val $ wire makeCommentsServer,
+    recipe @RunnerConf $ liftConIO $ eff $ wire $ Bean.JsonConf.lookupSection @RunnerConf "runner",
+    recipe @Runner $ val $ wire $ makeRunner
+  ]
+  where
+    liftConIO = hoistConstructor liftIO
