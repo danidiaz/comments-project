@@ -60,8 +60,8 @@ manuallyWired = do
   sqlitePool <- managed $ Bean.Sqlite.Pool.make sqlitePoolConf
   threadLocal <- liftIO makeThreadLocal
   let currentConnection = makeThreadLocalCurrent threadLocal
-  let commentsRepossitory = Comments.Repository.Sqlite.make logger currentConnection
-  let commentsServer = makeCommentsServer logger commentsRepossitory
+  let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
+  let commentsServer = makeCommentsServer logger commentsRepository
   runnerConf <- liftIO $ Bean.JsonConf.lookupSection @RunnerConf "runner" jsonConf
   pure $ makeRunner runnerConf sqlitePool threadLocal logger commentsServer
 
