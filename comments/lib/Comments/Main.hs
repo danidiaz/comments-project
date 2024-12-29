@@ -36,19 +36,19 @@ appMain = do
 cauldron :: Cauldron Managed
 cauldron =
   [ let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
-     in recipe @JsonConf $ liftConIO $ eff $ wire makeJsonConf,
+     in recipe @JsonConf $ effIO $ wire makeJsonConf,
     recipe @Logger $ eff $ wire $ managed withStdOutLogger,
-    recipe @SqlitePoolConf $ liftConIO $ eff $ wire $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite",
+    recipe @SqlitePoolConf $ effIO $ wire $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite",
     recipe @SqlitePool $ eff $ wire \conf -> managed $ Bean.Sqlite.Pool.make conf,
-    recipe @(ThreadLocal Connection) $ liftConIO $ eff $ wire makeThreadLocal,
+    recipe @(ThreadLocal Connection) $ effIO $ wire makeThreadLocal,
     recipe @(Current Connection) $ val $ wire makeThreadLocalCurrent,
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
     recipe @CommentsServer $ val $ wire makeCommentsServer,
-    recipe @RunnerConf $ liftConIO $ eff $ wire $ Bean.JsonConf.lookupSection @RunnerConf "runner",
+    recipe @RunnerConf $ effIO $ wire $ Bean.JsonConf.lookupSection @RunnerConf "runner",
     recipe @Runner $ val $ wire $ makeRunner
   ]
   where
-    liftConIO = hoistConstructor liftIO
+    effIO x = hoistConstructor liftIO $ eff x
 
 manuallyWired :: Managed Runner
 manuallyWired = do
