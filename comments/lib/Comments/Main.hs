@@ -10,8 +10,8 @@ import Bean.JsonConf.YamlFile qualified
 import Bean.Sqlite.Pool
 import Bean.ThreadLocal
 import Cauldron
-import Cauldron.Managed
 import Cauldron.Builder
+import Cauldron.Managed
 import Comments.Repository
 import Comments.Repository.Sqlite qualified
 import Comments.Runner
@@ -20,6 +20,7 @@ import Control.Exception (throwIO)
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Reader
 import Data.Function ((&))
+import Data.Functor.Identity
 import Log
 import Log.Backend.StandardOutput
 import Servant.Server (Handler)
@@ -70,17 +71,23 @@ manuallyWiredAppMain :: IO ()
 manuallyWiredAppMain = do
   with manuallyWired \Runner {runServer} -> runServer
 
-polymorphicallyWired :: (MonadBuilder b, ConstructorEff b ~ Managed) => b (ArgsWrapper b Runner)
+polymorphicallyWired :: (MonadBuilder m, ConstructorMonad m ~ Managed) => m (ArgsApplicative m Runner)
 polymorphicallyWired = do
   jsonConf <- do
     let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
-    addEff $ pure $ liftIO makeJsonConf
-  logger <- addEff $ pure $ managed withStdOutLogger
-  sqlitePoolConf <- addEff $ liftIO <$> Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
-  sqlitePool <- addEff $ (\conf -> managed $ Bean.Sqlite.Pool.make conf) <$> sqlitePoolConf
-  threadLocal <- addEff $ pure $ liftIO $ makeThreadLocal
-  currentConnection <- addVal $ makeThreadLocalCurrent <$> threadLocal
-  commentsRepository <- addVal  $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
-  commentsServer <- addVal $ makeCommentsServer <$> logger <*> commentsRepository
-  runnerConf <- addEff $ liftIO <$> Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
-  addVal $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
+    addIOEff_ $ pure makeJsonConf
+  logger <- addEff_ $ pure $ managed withStdOutLogger
+  sqlitePoolConf <- addIOEff_ $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
+  sqlitePool <- addEff_ $ (\conf -> managed $ Bean.Sqlite.Pool.make conf) <$> sqlitePoolConf
+  threadLocal <- addIOEff_ $ pure $ makeThreadLocal
+  currentConnection <- addVal_ $ makeThreadLocalCurrent <$> threadLocal
+  commentsRepository <- addVal_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
+  commentsServer <- addVal_ $ makeCommentsServer <$> logger <*> commentsRepository
+  runnerConf <- addIOEff_ $ Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
+  addVal_ $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
+
+polymorphicallyWired' :: Managed (Identity Runner)
+polymorphicallyWired' = polymorphicallyWired
+
+polymorphicallyWired'' :: Cauldron Managed
+polymorphicallyWired'' = execBuilder $ polymorphicallyWired
