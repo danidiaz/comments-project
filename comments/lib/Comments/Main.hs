@@ -11,6 +11,7 @@ import Bean.Sqlite.Pool
 import Bean.ThreadLocal
 import Cauldron
 import Cauldron.Managed
+import Cauldron.Builder
 import Comments.Repository
 import Comments.Repository.Sqlite qualified
 import Comments.Runner
@@ -68,3 +69,18 @@ manuallyWired = do
 manuallyWiredAppMain :: IO ()
 manuallyWiredAppMain = do
   with manuallyWired \Runner {runServer} -> runServer
+
+polymorphicallyWired :: (MonadBuilder b, ConstructorEff b ~ Managed) => b (ArgsWrapper b Runner)
+polymorphicallyWired = do
+  jsonConf <- do
+    let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
+    addEff $ pure $ liftIO makeJsonConf
+  logger <- addEff $ pure $ managed withStdOutLogger
+  sqlitePoolConf <- addEff $ liftIO <$> Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
+  sqlitePool <- addEff $ (\conf -> managed $ Bean.Sqlite.Pool.make conf) <$> sqlitePoolConf
+  threadLocal <- addEff $ pure $ liftIO $ makeThreadLocal
+  currentConnection <- addVal $ makeThreadLocalCurrent <$> threadLocal
+  commentsRepository <- addVal  $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
+  commentsServer <- addVal $ makeCommentsServer <$> logger <*> commentsRepository
+  runnerConf <- addEff $ liftIO <$> Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
+  addVal $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
