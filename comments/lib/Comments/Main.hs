@@ -71,20 +71,20 @@ manuallyWiredAppMain :: IO ()
 manuallyWiredAppMain = do
   with manuallyWired \Runner {runServer} -> runServer
 
-polymorphicallyWired :: (MonadBuilder m, ConstructorMonad m ~ Managed) => m (ArgsApplicative m Runner)
+polymorphicallyWired :: (MonadWiring m, ConstructorMonad m ~ Managed) => m (ArgsApplicative m Runner)
 polymorphicallyWired = do
   jsonConf <- do
     let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
-    addIOEff_ $ pure makeJsonConf
-  logger <- addEff_ $ pure $ managed withStdOutLogger
-  sqlitePoolConf <- addIOEff_ $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
-  sqlitePool <- addEff_ $ (\conf -> managed $ Bean.Sqlite.Pool.make conf) <$> sqlitePoolConf
-  threadLocal <- addIOEff_ $ pure $ makeThreadLocal
-  currentConnection <- addVal_ $ makeThreadLocalCurrent <$> threadLocal
-  commentsRepository <- addVal_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
-  commentsServer <- addVal_ $ makeCommentsServer <$> logger <*> commentsRepository
-  runnerConf <- addIOEff_ $ Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
-  addVal_ $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
+    _ioEff_ $ pure makeJsonConf
+  logger <- _eff_ $ pure $ managed withStdOutLogger
+  sqlitePoolConf <- _ioEff_ $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
+  sqlitePool <- _eff_ $ (\conf -> managed $ Bean.Sqlite.Pool.make conf) <$> sqlitePoolConf
+  threadLocal <- _ioEff_ $ pure $ makeThreadLocal
+  currentConnection <- _val_ $ makeThreadLocalCurrent <$> threadLocal
+  commentsRepository <- _val_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
+  commentsServer <- _val_ $ makeCommentsServer <$> logger <*> commentsRepository
+  runnerConf <- _ioEff_ $ Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
+  _val_ $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
 
 polymorphicallyWired' :: Managed (Identity Runner)
 polymorphicallyWired' = polymorphicallyWired
