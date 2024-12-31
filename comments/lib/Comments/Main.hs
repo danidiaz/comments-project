@@ -2,7 +2,13 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Comments.Main (appMain, manuallyWiredAppMain) where
+module Comments.Main
+  ( appMain,
+    manuallyWiredAppMain,
+    polymorphicallyWiredAppMain',
+    polymorphicallyWiredAppMain'',
+  )
+where
 
 import Bean.Current
 import Bean.JsonConf
@@ -84,8 +90,20 @@ polymorphicallyWired = do
   runnerConf <- _ioEff_ $ Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
   _val_ $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
 
-polymorphicallyWired' :: Managed (Identity Runner)
-polymorphicallyWired' = polymorphicallyWired
+polymorphicallyWired' :: Managed Runner
+polymorphicallyWired' = runIdentity <$> polymorphicallyWired
 
-polymorphicallyWired'' :: Cauldron Managed
-polymorphicallyWired'' = execBuilder $ polymorphicallyWired
+polymorphicallyWiredAppMain' :: IO ()
+polymorphicallyWiredAppMain' = do
+  with polymorphicallyWired' \Runner {runServer} -> runServer
+
+polymorphicallyWired'' :: IO (Cauldron Managed)
+polymorphicallyWired'' = polymorphicallyWired & execBuilder & either throwIO pure
+
+polymorphicallyWiredAppMain'' :: IO ()
+polymorphicallyWiredAppMain'' = do
+  theCauldron <- polymorphicallyWired''
+  cook forbidDepCycles theCauldron & either throwIO \action -> with action \beans -> do
+    case taste beans of
+      Nothing -> error "no bean found"
+      Just Runner {runServer} -> runServer
