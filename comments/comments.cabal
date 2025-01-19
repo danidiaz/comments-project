@@ -61,33 +61,8 @@ library
         http-api-data,
         http-types,
         unordered-containers,
-        comments:beans
+        dani-beans,
     hs-source-dirs:   lib
     default-language: GHC2021
     ghc-options: -threaded
 
-
-library beans
-    exposed-modules:  
-        -- things that could be generically useful
-        Bean.JsonConf
-        Bean.JsonConf.YamlFile
-        Bean.Sqlite.Pool
-        Bean.Current
-        Bean.ThreadLocal
-    build-depends:
-        base,
-        text,
-        bytestring,
-        containers,
-        aeson,
-        dani-sqlite,
-        log-base,
-        http-media,
-        yaml,
-        resource-pool,
-        transformers,
-        unordered-containers,
-    hs-source-dirs:   lib-beans
-    default-language: GHC2021
-    ghc-options: -threaded

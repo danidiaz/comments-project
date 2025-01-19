@@ -1,4 +1,5 @@
 packages:
     cauldron
     dani-sqlite
+    dani-beans
     comments

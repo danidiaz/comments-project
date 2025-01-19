@@ -1,0 +1,38 @@
+cabal-version:      3.0
+name:               dani-beans
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Daniel Díaz
+maintainer:         diaz_carrete@yahoo.com
+-- copyright:
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    exposed-modules:  
+        -- things that could be generically useful
+        Bean.JsonConf
+        Bean.JsonConf.YamlFile
+        Bean.Sqlite.Pool
+        Bean.Current
+        Bean.ThreadLocal
+    build-depends:
+        base,
+        text,
+        bytestring,
+        containers,
+        aeson,
+        dani-sqlite,
+        yaml,
+        resource-pool,
+        unordered-containers,
+    hs-source-dirs:   lib-beans
+    default-language: GHC2021
+    ghc-options: -threaded
