@@ -20,7 +20,6 @@ library
         -- things that could be generically useful
         Bean.JsonConf
         Bean.JsonConf.YamlFile
-        Bean.Sqlite.Pool
         Bean.Current
         Bean.ThreadLocal
     build-depends:
@@ -29,7 +28,6 @@ library
         bytestring,
         containers,
         aeson,
-        dani-sqlite,
         yaml,
         resource-pool,
         unordered-containers,

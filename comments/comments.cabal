@@ -51,6 +51,7 @@ library
         aeson,
         cauldron,
         dani-sqlite,
+        dani-sqlite:pool,
         log-base,
         http-media,
         warp,

@@ -13,7 +13,7 @@ where
 import Bean.Current
 import Bean.JsonConf
 import Bean.JsonConf.YamlFile qualified
-import Bean.Sqlite.Pool
+import Sqlite.Pool
 import Bean.ThreadLocal
 import Cauldron
 import Cauldron.Builder
@@ -47,7 +47,7 @@ cauldron =
      in recipe @JsonConf $ ioEff $ wire makeJsonConf,
     recipe @Logger $ eff $ wire $ managed withStdOutLogger,
     recipe @SqlitePoolConf $ ioEff $ wire $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite",
-    recipe @SqlitePool $ eff $ wire \conf -> managed $ Bean.Sqlite.Pool.make conf,
+    recipe @SqlitePool $ eff $ wire \conf -> managed $ Sqlite.Pool.make conf,
     recipe @(ThreadLocal Connection) $ ioEff $ wire makeThreadLocal,
     recipe @(Current Connection) $ val $ wire makeThreadLocalCurrent,
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
@@ -63,7 +63,7 @@ manuallyWired = do
      in liftIO $ makeJsonConf
   logger <- managed withStdOutLogger
   sqlitePoolConf <- liftIO $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
-  sqlitePool <- managed $ Bean.Sqlite.Pool.make sqlitePoolConf
+  sqlitePool <- managed $ Sqlite.Pool.make sqlitePoolConf
   threadLocal <- liftIO makeThreadLocal
   let currentConnection = makeThreadLocalCurrent threadLocal
   let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
@@ -82,7 +82,7 @@ polymorphicallyWired = do
     _ioEff_ $ pure makeJsonConf
   logger <- _eff_ $ pure $ managed withStdOutLogger
   sqlitePoolConf <- _ioEff_ $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
-  sqlitePool <- _eff_ $ (\conf -> managed $ Bean.Sqlite.Pool.make conf) <$> sqlitePoolConf
+  sqlitePool <- _eff_ $ (\conf -> managed $ Sqlite.Pool.make conf) <$> sqlitePoolConf
   threadLocal <- _ioEff_ $ pure $ makeThreadLocal
   currentConnection <- _val_ $ makeThreadLocalCurrent <$> threadLocal
   commentsRepository <- _val_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection

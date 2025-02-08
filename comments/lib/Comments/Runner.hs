@@ -12,7 +12,7 @@ module Comments.Runner
   )
 where
 
-import Bean.Sqlite.Pool
+import Sqlite.Pool
 import Bean.ThreadLocal
 import Comments.Api
 import Comments.Server
