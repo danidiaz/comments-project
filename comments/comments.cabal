@@ -23,6 +23,13 @@ executable comments
     build-depends:
         base,
         comments,
+        cauldron,
+        --
+        dani-sqlite,
+        log-base,
+        servant-server,
+        dani-beans,
+        dani-sqlite:pool,
     hs-source-dirs:   app
     default-language: GHC2021
     ghc-options: -threaded
@@ -30,7 +37,6 @@ executable comments
 library
     exposed-modules:  
         -- modules proper to this application
-        Comments.Main
         Comments
         Comments.Repository
         Comments.Repository.Sqlite
@@ -49,7 +55,6 @@ library
         bytestring,
         containers,
         aeson,
-        cauldron,
         dani-sqlite,
         dani-sqlite:pool,
         log-base,
@@ -57,7 +62,6 @@ library
         warp,
         yaml,
         resource-pool,
-        -- mtl,
         transformers,
         http-api-data,
         http-types,
