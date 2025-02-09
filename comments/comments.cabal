@@ -44,8 +44,6 @@ library
         Comments.Api
         Comments.Server
         Comments.Runner
-        -- some stuff vendored from other places
-        Lucid.Servant
     build-depends:
         base,
         servant,
@@ -69,6 +67,7 @@ library
         unordered-containers,
         dani-beans:threadlocal,
         dani-beans:jsonconf,
+        network-uri,
     hs-source-dirs:   lib
     default-language: GHC2021
     ghc-options: -threaded

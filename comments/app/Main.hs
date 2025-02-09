@@ -14,6 +14,7 @@ import Comments.Repository
 import Comments.Repository.Sqlite qualified
 import Comments.Runner
 import Comments.Server
+import Comments.Api (Links, makeLinks)
 import Control.Exception (throwIO)
 import Control.Monad.IO.Class
 import Data.Function ((&))
@@ -44,6 +45,7 @@ cauldron =
     recipe @(ThreadLocal Connection) $ ioEff $ wire makeThreadLocal,
     recipe @(IO Connection) $ val $ wire (readThreadLocal @Connection),
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
+    recipe @Links $ ioEff $ wire $ makeLinks, 
     recipe @CommentsServer $ val $ wire makeCommentsServer,
     recipe @RunnerConf $ ioEff $ wire $ JsonConf.lookupSection @RunnerConf "runner",
     recipe @Runner $ val $ wire $ makeRunner
@@ -60,7 +62,8 @@ manuallyWired = do
   threadLocal <- liftIO makeThreadLocal
   let currentConnection = readThreadLocal threadLocal
   let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
-  let commentsServer = makeCommentsServer logger commentsRepository
+  links <- liftIO makeLinks
+  let commentsServer = makeCommentsServer logger links commentsRepository
   runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
   pure $ makeRunner runnerConf sqlitePool threadLocal logger commentsServer
 
@@ -79,7 +82,8 @@ polymorphicallyWired = do
   threadLocal <- _ioEff_ $ pure $ makeThreadLocal
   currentConnection <- _val_ $ readThreadLocal <$> threadLocal
   commentsRepository <- _val_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
-  commentsServer <- _val_ $ makeCommentsServer <$> logger <*> commentsRepository
+  links <- _ioEff_ $ pure makeLinks
+  commentsServer <- _val_ $ makeCommentsServer <$> logger <*> links <*> commentsRepository
   runnerConf <- _ioEff_ $ JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
   _val_ $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
 

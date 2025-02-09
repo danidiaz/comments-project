@@ -16,8 +16,9 @@ import Data.Foldable
 import Log
 import Lucid
 import Lucid.Html5
-import Lucid.Servant
+-- import Lucid.Servant
 import Network.HTTP.Types.Header
+import Network.URI (uriToString)
 import Servant
 import Servant.API
 import Servant.Server (Handler)
@@ -26,9 +27,10 @@ newtype CommentsServer = CommentsServer {server :: Server Api}
 
 makeCommentsServer ::
   Logger ->
+  Links -> 
   CommentsRepository ->
   CommentsServer
-makeCommentsServer logger CommentsRepository {storeComment, listComments} =
+makeCommentsServer logger links CommentsRepository {storeComment, listComments} =
   CommentsServer {server}
   where
     server =
@@ -52,13 +54,13 @@ makeCommentsServer logger CommentsRepository {storeComment, listComments} =
           addComment = \IncomingComment {commentText} -> handlerizeE do
             storeComment Comment {commentText}
             -- \| https://hachyderm.io/@DiazCarrete/111841132226571708
-            pure do Left err303 {errHeaders = [(hLocation, toHeader do "/" <> toUrlPiece mainPageLink)]}
+            pure do Left err303 {errHeaders = [
+              uriToLocationHeader links.mainPage
+              ]
+              }
         }
-    mainPageLink :: Link
-    mainPageLink = links.mainPage
-
-links :: Comments (AsLink Link)
-links = safeLink (Proxy @Api) (Proxy @Api)
+    uriToLocationHeader uri = 
+      (hLocation, toHeader $ uriToString id uri "" )
 
 handlerize :: IO r -> Handler r
 handlerize action = coerce do fmap (Right @ServerError) action
