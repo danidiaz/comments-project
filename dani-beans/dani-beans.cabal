@@ -20,7 +20,6 @@ library
         -- things that could be generically useful
         Bean.JsonConf
         Bean.JsonConf.YamlFile
-        Bean.Current
         Bean.ThreadLocal
     build-depends:
         base,

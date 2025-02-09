@@ -3,7 +3,6 @@
 
 module Comments.Repository.Sqlite where
 
-import Bean.Current
 import Comments
 import Comments.Repository
 import Control.Monad.IO.Class
@@ -14,15 +13,15 @@ import Sqlite.Query
 
 make ::
   Logger ->
-  Current Connection ->
+  IO Connection ->
   CommentsRepository
-make logger Current {askCurrent} = do
+make logger askConn = do
   CommentsRepository
     { storeComment = \Comment {commentText} -> do
-        conn <- askCurrent
+        conn <- askConn
         Sqlite.Query.execute conn "insert into comment (comment_text) values (?)" do MkSolo commentText,
       listComments = do
-        conn <- askCurrent
+        conn <- askConn
         commentTexts :: [Solo Text] <- Sqlite.Query.select_ conn "select comment_text from comment"
         pure do Comment . getSolo <$> commentTexts
     }

@@ -3,7 +3,6 @@
 {-# LANGUAGE OverloadedLists #-}
 module Main where
 
-import Bean.Current
 import Bean.JsonConf
 import Bean.JsonConf.YamlFile qualified
 import Sqlite.Pool
@@ -43,7 +42,7 @@ cauldron =
     recipe @SqlitePoolConf $ ioEff $ wire $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite",
     recipe @SqlitePool $ eff $ wire \conf -> managed $ Sqlite.Pool.make conf,
     recipe @(ThreadLocal Connection) $ ioEff $ wire makeThreadLocal,
-    recipe @(Current Connection) $ val $ wire makeThreadLocalCurrent,
+    recipe @(IO Connection) $ val $ wire (readThreadLocal @Connection),
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
     recipe @CommentsServer $ val $ wire makeCommentsServer,
     recipe @RunnerConf $ ioEff $ wire $ Bean.JsonConf.lookupSection @RunnerConf "runner",
@@ -59,7 +58,7 @@ manuallyWired = do
   sqlitePoolConf <- liftIO $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
   sqlitePool <- managed $ Sqlite.Pool.make sqlitePoolConf
   threadLocal <- liftIO makeThreadLocal
-  let currentConnection = makeThreadLocalCurrent threadLocal
+  let currentConnection = readThreadLocal threadLocal
   let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
   let commentsServer = makeCommentsServer logger commentsRepository
   runnerConf <- liftIO $ Bean.JsonConf.lookupSection @RunnerConf "runner" jsonConf
@@ -78,7 +77,7 @@ polymorphicallyWired = do
   sqlitePoolConf <- _ioEff_ $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
   sqlitePool <- _eff_ $ (\conf -> managed $ Sqlite.Pool.make conf) <$> sqlitePoolConf
   threadLocal <- _ioEff_ $ pure $ makeThreadLocal
-  currentConnection <- _val_ $ makeThreadLocalCurrent <$> threadLocal
+  currentConnection <- _val_ $ readThreadLocal <$> threadLocal
   commentsRepository <- _val_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
   commentsServer <- _val_ $ makeCommentsServer <$> logger <*> commentsRepository
   runnerConf <- _ioEff_ $ Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf

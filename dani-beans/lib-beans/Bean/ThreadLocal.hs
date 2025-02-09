@@ -10,13 +10,11 @@ module Bean.ThreadLocal
     ThreadLocalValueAlreadyExists (..),
     readThreadLocal,
     ThreadLocalValueMissing (..),
-    makeThreadLocalCurrent,
   )
 where
 
 -- https://stackoverflow.com/questions/16296571/lazy-vs-strict-implementations-of-data-structures
 
-import Bean.Current
 import Control.Concurrent
 import Control.Exception
 import Data.HashMap.Lazy (HashMap)
@@ -82,5 +80,5 @@ data ThreadLocalValueMissing where
   deriving stock (Show)
   deriving anyclass (Exception)
 
-makeThreadLocalCurrent :: forall v. (Typeable v) => ThreadLocal v -> Current v
-makeThreadLocalCurrent theThreadLocal = Current {askCurrent = readThreadLocal theThreadLocal}
+-- makeThreadLocalCurrent :: forall v. (Typeable v) => ThreadLocal v -> Current v
+-- makeThreadLocalCurrent theThreadLocal = Current {askCurrent = readThreadLocal theThreadLocal}
