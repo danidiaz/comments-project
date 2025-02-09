@@ -3,7 +3,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Bean.ThreadLocal
+module ThreadLocal
   ( ThreadLocal (..),
     makeThreadLocal,
     withThreadLocal,

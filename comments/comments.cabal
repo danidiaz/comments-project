@@ -28,8 +28,9 @@ executable comments
         dani-sqlite,
         log-base,
         servant-server,
-        dani-beans,
         dani-sqlite:pool,
+        dani-beans:threadlocal,
+        dani-beans:jsonconf,
     hs-source-dirs:   app
     default-language: GHC2021
     ghc-options: -threaded
@@ -66,7 +67,8 @@ library
         http-api-data,
         http-types,
         unordered-containers,
-        dani-beans,
+        dani-beans:threadlocal,
+        dani-beans:jsonconf,
     hs-source-dirs:   lib
     default-language: GHC2021
     ghc-options: -threaded

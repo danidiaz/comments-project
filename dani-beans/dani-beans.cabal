@@ -15,12 +15,24 @@ extra-doc-files:    CHANGELOG.md
 common warnings
     ghc-options: -Wall
 
-library
+library threadlocal
     exposed-modules:  
-        -- things that could be generically useful
-        Bean.JsonConf
-        Bean.JsonConf.YamlFile
-        Bean.ThreadLocal
+        ThreadLocal
+    build-depends:
+        base,
+        text,
+        bytestring,
+        containers,
+        unordered-containers,
+    hs-source-dirs:   lib-threadlocal
+    default-language: GHC2021
+    ghc-options: -threaded
+    visibility:      public
+
+library jsonconf
+    exposed-modules:  
+        JsonConf
+        JsonConf.YamlFile
     build-depends:
         base,
         text,
@@ -28,8 +40,7 @@ library
         containers,
         aeson,
         yaml,
-        resource-pool,
-        unordered-containers,
-    hs-source-dirs:   lib-beans
+    hs-source-dirs:   lib-jsonconf
     default-language: GHC2021
     ghc-options: -threaded
+    visibility:      public

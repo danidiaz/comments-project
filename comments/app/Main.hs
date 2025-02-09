@@ -3,10 +3,10 @@
 {-# LANGUAGE OverloadedLists #-}
 module Main where
 
-import Bean.JsonConf
-import Bean.JsonConf.YamlFile qualified
+import JsonConf
+import JsonConf.YamlFile qualified
 import Sqlite.Pool
-import Bean.ThreadLocal
+import ThreadLocal
 import Cauldron
 import Cauldron.Builder
 import Cauldron.Managed
@@ -36,32 +36,32 @@ appMain = do
 
 cauldron :: Cauldron Managed
 cauldron =
-  [ let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
+  [ let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
      in recipe @JsonConf $ ioEff $ wire makeJsonConf,
     recipe @Logger $ eff $ wire $ managed withStdOutLogger,
-    recipe @SqlitePoolConf $ ioEff $ wire $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite",
+    recipe @SqlitePoolConf $ ioEff $ wire $ JsonConf.lookupSection @SqlitePoolConf "sqlite",
     recipe @SqlitePool $ eff $ wire \conf -> managed $ Sqlite.Pool.make conf,
     recipe @(ThreadLocal Connection) $ ioEff $ wire makeThreadLocal,
     recipe @(IO Connection) $ val $ wire (readThreadLocal @Connection),
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
     recipe @CommentsServer $ val $ wire makeCommentsServer,
-    recipe @RunnerConf $ ioEff $ wire $ Bean.JsonConf.lookupSection @RunnerConf "runner",
+    recipe @RunnerConf $ ioEff $ wire $ JsonConf.lookupSection @RunnerConf "runner",
     recipe @Runner $ val $ wire $ makeRunner
   ]
 
 manuallyWired :: Managed Runner
 manuallyWired = do
   jsonConf <-
-    let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
+    let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
      in liftIO $ makeJsonConf
   logger <- managed withStdOutLogger
-  sqlitePoolConf <- liftIO $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
+  sqlitePoolConf <- liftIO $ JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
   sqlitePool <- managed $ Sqlite.Pool.make sqlitePoolConf
   threadLocal <- liftIO makeThreadLocal
   let currentConnection = readThreadLocal threadLocal
   let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
   let commentsServer = makeCommentsServer logger commentsRepository
-  runnerConf <- liftIO $ Bean.JsonConf.lookupSection @RunnerConf "runner" jsonConf
+  runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
   pure $ makeRunner runnerConf sqlitePool threadLocal logger commentsServer
 
 manuallyWiredAppMain :: IO ()
@@ -71,16 +71,16 @@ manuallyWiredAppMain = do
 polymorphicallyWired :: (MonadWiring m, ConstructorMonad m ~ Managed) => m (ArgsApplicative m Runner)
 polymorphicallyWired = do
   jsonConf <- do
-    let makeJsonConf = Bean.JsonConf.YamlFile.make $ Bean.JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] Bean.JsonConf.YamlFile.useEnv
+    let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
     _ioEff_ $ pure makeJsonConf
   logger <- _eff_ $ pure $ managed withStdOutLogger
-  sqlitePoolConf <- _ioEff_ $ Bean.JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
+  sqlitePoolConf <- _ioEff_ $ JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
   sqlitePool <- _eff_ $ (\conf -> managed $ Sqlite.Pool.make conf) <$> sqlitePoolConf
   threadLocal <- _ioEff_ $ pure $ makeThreadLocal
   currentConnection <- _val_ $ readThreadLocal <$> threadLocal
   commentsRepository <- _val_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
   commentsServer <- _val_ $ makeCommentsServer <$> logger <*> commentsRepository
-  runnerConf <- _ioEff_ $ Bean.JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
+  runnerConf <- _ioEff_ $ JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
   _val_ $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
 
 polymorphicallyWired' :: Managed Runner

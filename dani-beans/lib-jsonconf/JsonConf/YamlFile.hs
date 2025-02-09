@@ -1,12 +1,12 @@
 {-# LANGUAGE BlockArguments #-}
 
-module Bean.JsonConf.YamlFile
+module JsonConf.YamlFile
   ( make,
     module Data.Yaml.Config,
   )
 where
 
-import Bean.JsonConf
+import JsonConf
 import Control.Exception
 import Control.Monad.IO.Class
 import Data.Aeson (Value)

@@ -1,6 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 
-module Bean.JsonConf
+module JsonConf
   ( JsonConf (..),
     lookupSection,
     JsonConfMissingSection (..),

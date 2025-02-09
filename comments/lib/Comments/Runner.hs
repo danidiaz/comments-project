@@ -13,7 +13,7 @@ module Comments.Runner
 where
 
 import Sqlite.Pool
-import Bean.ThreadLocal
+import ThreadLocal
 import Comments.Api
 import Comments.Server
 import Control.Monad.IO.Class
