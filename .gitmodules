@@ -4,3 +4,6 @@
 [submodule "cauldron"]
 	path = cauldron
 	url = https://github.com/danidiaz/cauldron.git
+[submodule "dani-beans"]
+	path = dani-beans
+	url = git@github.com:danidiaz/dani-beans.git
