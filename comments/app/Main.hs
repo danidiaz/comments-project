@@ -14,7 +14,7 @@ import Comments.Repository
 import Comments.Repository.Sqlite qualified
 import Comments.Runner
 import Comments.Server
-import Comments.Api (Links, makeLinks)
+import Comments.Api (CommentsLinks, makeLinks)
 import Control.Exception (throwIO)
 import Control.Monad.IO.Class
 import Data.Function ((&))
@@ -45,7 +45,7 @@ cauldron =
     recipe @(ThreadLocal Connection) $ ioEff $ wire makeThreadLocal,
     recipe @(IO Connection) $ val $ wire (readThreadLocal @Connection),
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
-    recipe @Links $ ioEff $ wire $ makeLinks, 
+    recipe @CommentsLinks $ ioEff $ wire $ makeLinks, 
     recipe @CommentsServer $ val $ wire makeCommentsServer,
     recipe @RunnerConf $ ioEff $ wire $ JsonConf.lookupSection @RunnerConf "runner",
     recipe @Runner $ val $ wire $ makeRunner

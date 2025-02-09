@@ -6,7 +6,7 @@ module Comments.Api (
   Api, 
   Comments (..), 
   IncomingComment (..),
-  Links,
+  CommentsLinks (..), 
   makeLinks,
   ) where
 
@@ -38,12 +38,14 @@ data IncomingComment = IncomingComment {commentText :: Text} deriving (Generic)
 
 instance FromForm IncomingComment
 
-type Links = Comments (AsLink URI)
+newtype CommentsLinks = CommentsLinks { links :: Comments (AsLink URI) }
 
 -- | Create a links struct with absolute URIs
 -- https://hachyderm.io/@DiazCarrete/111841132226571708
 -- https://www.youtube.com/watch?v=KC64Ymo63hQ
-makeLinks :: IO Links
+makeLinks :: IO CommentsLinks
 makeLinks = do
   root <- parseRelativeReference "/" & maybe (fail "Could not create root URI") pure
-  pure $ allLinks' (\r -> linkURI r `relativeTo` root) (Proxy @Api)
+  let links = allLinks' (\r -> linkURI r `relativeTo` root) (Proxy @Api)
+  pure CommentsLinks {links}
+

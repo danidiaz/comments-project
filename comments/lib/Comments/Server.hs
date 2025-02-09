@@ -27,10 +27,10 @@ newtype CommentsServer = CommentsServer {server :: Server Api}
 
 makeCommentsServer ::
   Logger ->
-  Links -> 
+  CommentsLinks -> 
   CommentsRepository ->
   CommentsServer
-makeCommentsServer logger links CommentsRepository {storeComment, listComments} =
+makeCommentsServer logger CommentsLinks {links} CommentsRepository {storeComment, listComments} =
   CommentsServer {server}
   where
     server =
