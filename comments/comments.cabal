@@ -19,21 +19,15 @@ common language
 executable comments
     import:           
         language
-    main-is:          Main.hs
+    main-is:          
+        Main.hs
     -- other-modules:
     -- other-extensions:
     build-depends:
         base,
         comments,
-        cauldron,
-        --
-        dani-sqlite,
-        log-base,
-        servant-server,
-        dani-sqlite:pool,
-        dani-beans:threadlocal,
-        dani-beans:jsonconf,
-    hs-source-dirs:   app
+    hs-source-dirs:   
+        app
     ghc-options: -threaded
 
 library
@@ -50,6 +44,7 @@ library
         Comments.Runner
     build-depends:
         base,
+        cauldron,
         servant,
         servant-server,
         lucid2,
