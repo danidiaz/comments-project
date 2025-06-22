@@ -29,11 +29,10 @@ main = appMain
 appMain :: IO ()
 appMain = do
   let depGraph = getDependencyGraph cauldron
-  writeAsDot (defaultStyle Nothing) "beans.dot" $ collapseToPrimaryBeans $ removeDecos $ removeSecondaryBeans $ depGraph
-  cook forbidDepCycles cauldron & either throwIO \action -> with action \beans -> do
-    case taste beans of
-      Nothing -> error "no bean found"
-      Just Runner {runServer} -> runServer
+  writeAsDot (defaultStyle Nothing) "beans.dot" $ collapseBeans $ removeDecos $ removeAggregates $ depGraph
+  cook @Runner forbidDepCycles cauldron & either throwIO \action -> 
+    with action \(Runner {runServer}) -> do
+      runServer
 
 cauldron :: Cauldron Managed
 cauldron =
@@ -100,7 +99,6 @@ polymorphicallyWired'' = polymorphicallyWired & execBuilder & either throwIO pur
 polymorphicallyWiredAppMain'' :: IO ()
 polymorphicallyWiredAppMain'' = do
   theCauldron <- polymorphicallyWired''
-  cook forbidDepCycles theCauldron & either throwIO \action -> with action \beans -> do
-    case taste beans of
-      Nothing -> error "no bean found"
-      Just Runner {runServer} -> runServer
+  cook forbidDepCycles theCauldron & either throwIO \action ->
+    with action \(Runner {runServer}) -> do
+      runServer
