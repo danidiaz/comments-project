@@ -6,6 +6,7 @@ module Comments (
     manuallyWiredAppMain,
     polymorphicallyWiredAppMain',
     polymorphicallyWiredAppMain'',
+    depDiagramsMain,
 ) where
 
 import JsonConf
@@ -28,13 +29,15 @@ import Log
 import Log.Backend.StandardOutput
 import Sqlite (Connection)
 
-main :: IO ()
-main = appMain
+depDiagramsMain :: IO ()
+depDiagramsMain = do
+  let depGraph = getDependencyGraph cauldron
+  writeAsDot (defaultStyle Nothing) "beans.dot" $ depGraph
+  writeAsDot (defaultStyle Nothing) "beans-decos.dot" $ collapseBeans $ removeAggregates $ depGraph
+  writeAsDot (defaultStyle Nothing) "beans-simple.dot" $ collapseBeans $ removeDecos $ removeAggregates $ depGraph
 
 appMain :: IO ()
 appMain = do
-  let depGraph = getDependencyGraph cauldron
-  writeAsDot (defaultStyle Nothing) "beans.dot" $ collapseBeans $ removeDecos $ removeAggregates $ depGraph
   cook @Runner forbidDepCycles cauldron & either throwIO \action -> 
     with action \(Runner {runServer}) -> do
       runServer
