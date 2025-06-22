@@ -6,7 +6,7 @@ module Comments.Root (
     manuallyWiredAppMain,
     polymorphicallyWiredAppMain',
     polymorphicallyWiredAppMain'',
-    depDiagramsMain,
+    dependencyGraphMain,
 ) where
 
 import JsonConf
@@ -29,8 +29,8 @@ import Log
 import Log.Backend.StandardOutput
 import Sqlite (Connection)
 
-depDiagramsMain :: IO ()
-depDiagramsMain = do
+dependencyGraphMain :: IO ()
+dependencyGraphMain = do
   let depGraph = getDependencyGraph cauldron
   writeAsDot (defaultStyle Nothing) "beans.dot" $ depGraph
   writeAsDot (defaultStyle Nothing) "beans-decos.dot" $ collapseBeans $ removeAggregates $ depGraph

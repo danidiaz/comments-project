@@ -4,11 +4,11 @@
 module Main where
 
 import Comments.Root (
-    depDiagramsMain,
+    dependencyGraphMain,
     -- manuallyWiredAppMain,
     -- polymorphicallyWiredAppMain',
     -- polymorphicallyWiredAppMain'',
     )
 
 main :: IO ()
-main = depDiagramsMain
+main = dependencyGraphMain

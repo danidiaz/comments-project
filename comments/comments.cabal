@@ -31,7 +31,7 @@ executable comments
     ghc-options: -threaded
 
 -- | Executable that generates .dot diagrams of the application dependency graph.
-executable comments-depdiag
+executable comments-depgraph
     import:           
         language
     main-is:          
@@ -42,7 +42,7 @@ executable comments-depdiag
         base,
         comments,
     hs-source-dirs:   
-        app-depdiag
+        app-depgraph
     ghc-options: -threaded
 
 library
