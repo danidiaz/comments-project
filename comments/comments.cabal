@@ -12,11 +12,13 @@ build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
-common warnings
+common language
     ghc-options: -Wall
+    default-language: GHC2024
 
 executable comments
-    import:           warnings
+    import:           
+        language
     main-is:          Main.hs
     -- other-modules:
     -- other-extensions:
@@ -32,13 +34,15 @@ executable comments
         dani-beans:threadlocal,
         dani-beans:jsonconf,
     hs-source-dirs:   app
-    default-language: GHC2021
     ghc-options: -threaded
 
 library
+    import:           
+        language
     exposed-modules:  
         -- modules proper to this application
         Comments
+        Comments.Model
         Comments.Repository
         Comments.Repository.Sqlite
         Comments.Api
@@ -69,6 +73,4 @@ library
         dani-beans:jsonconf,
         network-uri,
     hs-source-dirs:   lib
-    default-language: GHC2021
-    ghc-options: -threaded
 

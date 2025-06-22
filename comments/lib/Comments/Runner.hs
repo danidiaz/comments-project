@@ -56,6 +56,7 @@ makeRunner
   logger
   CommentsServer {server} = Runner {runServer}
     where
+      withEachRequest :: forall z. Handler z -> Handler z
       withEachRequest action =
         Handler
           do

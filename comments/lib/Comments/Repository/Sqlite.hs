@@ -3,7 +3,7 @@
 
 module Comments.Repository.Sqlite where
 
-import Comments
+import Comments.Model
 import Comments.Repository
 import Control.Monad.IO.Class
 import Data.Text
