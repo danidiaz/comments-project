@@ -1,6 +1,6 @@
 module Comments.Repository where
 
-import Comments.Model
+import Comments
 
 data CommentsRepository = CommentsRepository
   { storeComment :: Comment -> IO (),

@@ -3,9 +3,8 @@
 
 module Comments.Repository.Sqlite where
 
-import Comments.Model
+import Comments
 import Comments.Repository
-import Control.Monad.IO.Class
 import Data.Text
 import Data.Tuple
 import Log
@@ -15,7 +14,7 @@ make ::
   Logger ->
   IO Connection ->
   CommentsRepository
-make logger askConn = do
+make _logger askConn = do
   CommentsRepository
     { storeComment = \Comment {commentText} -> do
         conn <- askConn

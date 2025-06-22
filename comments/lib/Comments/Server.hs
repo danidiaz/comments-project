@@ -7,7 +7,7 @@
 
 module Comments.Server (CommentsServer (..), makeCommentsServer) where
 
-import Comments.Model
+import Comments
 import Comments.Api
 import Comments.Repository
 import Control.Monad.Trans.Except

@@ -50,8 +50,8 @@ library
         language
     exposed-modules:  
         -- modules proper to this application
+        Comments.Root
         Comments
-        Comments.Model
         Comments.Repository
         Comments.Repository.Sqlite
         Comments.Api
