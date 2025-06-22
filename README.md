@@ -32,6 +32,12 @@ And navigate to `http://localhost:8000/comments`.
 ormolu --mode inplace $(git ls-files '*.hs')
 ```
 
+```
+dot -Tpng beans.dot >beans.png
+dot -Tsvg beans.dot >beans.svg
+python -m http.server
+```
+
 # Some things to note
 
 - There is not a central configuration record. Each component registers some configuration
