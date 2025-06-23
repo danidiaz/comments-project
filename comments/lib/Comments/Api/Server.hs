@@ -5,7 +5,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoFieldSelectors #-}
 
-module Comments.Api.Server (CommentsServer (..), makeCommentsServer) where
+module Comments.Api.Server (
+    CommentsServer (..), 
+    makeCommentsServer,
+    hoistCommentsServer 
+  ) where
 
 import Comments
 import Comments.Api
@@ -21,7 +25,7 @@ import Network.HTTP.Types.Header
 import Network.URI (uriToString)
 import Servant
 import Servant.API
-import Servant.Server (Handler)
+import Servant.Server (Handler, ServerT)
 
 newtype CommentsServer = CommentsServer {server :: Server Api}
 
@@ -51,7 +55,7 @@ makeCommentsServer logger CommentsLinks {links} CommentsRepository {storeComment
                     form_ [method_ "post"] do
                       div_ do textarea_ [id_ "comment", name_ "commentText", rows_ "5"] mempty
                       input_ [type_ "submit", value_ "Send"],
-          addComment = \IncomingComment {commentText} -> handlerizeE do
+          addComment = \IncomingComment {commentText} -> MkHandler do
             storeComment Comment {commentText}
             -- \| https://hachyderm.io/@DiazCarrete/111841132226571708
             pure do
@@ -68,5 +72,8 @@ makeCommentsServer logger CommentsLinks {links} CommentsRepository {storeComment
 handlerize :: IO r -> Handler r
 handlerize action = coerce do fmap (Right @ServerError) action
 
-handlerizeE :: IO (Either ServerError r) -> Handler r
-handlerizeE = coerce
+hoistCommentsServer :: (forall x. IO x -> IO x) -> CommentsServer -> CommentsServer
+hoistCommentsServer f CommentsServer { server = _server } = CommentsServer { server }
+  where
+  server = hoistServer (Proxy @Api) h _server
+  h (MkHandler action) = MkHandler (f action)
