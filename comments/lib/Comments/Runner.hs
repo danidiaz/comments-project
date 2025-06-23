@@ -12,8 +12,6 @@ module Comments.Runner
   )
 where
 
-import Sqlite.Pool
-import ThreadLocal
 import Comments.Api
 import Comments.Server
 import Control.Monad.IO.Class
@@ -30,6 +28,8 @@ import Servant.API
 import Servant.Server
 import Servant.Server.StaticFiles
 import Sqlite
+import Sqlite.Pool
+import ThreadLocal
 
 data RunnerConf = RunnerConf
   { port :: Int,
@@ -57,14 +57,9 @@ makeRunner
   CommentsServer {server} = Runner {runServer}
     where
       withEachRequest :: forall z. Handler z -> Handler z
-      withEachRequest action =
-        Handler
-          do
-            ExceptT
-              do
-                withResource pool \Resource {resource} ->
-                  withThreadLocal threadLocalConnection resource do
-                    runHandler action
+      withEachRequest (MkHandler action) = MkHandler do
+        withResource pool \Resource {resource} ->
+          withThreadLocal threadLocalConnection resource action
       hoistedServer =
         hoistServer
           (Proxy @Api)

@@ -1,14 +1,15 @@
 {-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
-import Comments.Root (
-    dependencyGraphMain,
-    -- manuallyWiredAppMain,
-    -- polymorphicallyWiredAppMain',
-    -- polymorphicallyWiredAppMain'',
-    )
+import Comments.Root
+  ( dependencyGraphMain,
+  -- manuallyWiredAppMain,
+  -- polymorphicallyWiredAppMain',
+  -- polymorphicallyWiredAppMain'',
+  )
 
 main :: IO ()
 main = dependencyGraphMain

@@ -14,7 +14,7 @@ extra-doc-files:    CHANGELOG.md
 
 common language
     ghc-options: -Wall
-    default-language: GHC2024
+    default-language: GHC2021
 
 executable comments
     import:           

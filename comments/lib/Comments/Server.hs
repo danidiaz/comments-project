@@ -27,7 +27,7 @@ newtype CommentsServer = CommentsServer {server :: Server Api}
 
 makeCommentsServer ::
   Logger ->
-  CommentsLinks -> 
+  CommentsLinks ->
   CommentsRepository ->
   CommentsServer
 makeCommentsServer logger CommentsLinks {links} CommentsRepository {storeComment, listComments} =
@@ -54,13 +54,16 @@ makeCommentsServer logger CommentsLinks {links} CommentsRepository {storeComment
           addComment = \IncomingComment {commentText} -> handlerizeE do
             storeComment Comment {commentText}
             -- \| https://hachyderm.io/@DiazCarrete/111841132226571708
-            pure do Left err303 {errHeaders = [
-              uriToLocationHeader links.mainPage
-              ]
-              }
+            pure do
+              Left
+                err303
+                  { errHeaders =
+                      [ uriToLocationHeader links.mainPage
+                      ]
+                  }
         }
-    uriToLocationHeader uri = 
-      (hLocation, toHeader $ uriToString id uri "" )
+    uriToLocationHeader uri =
+      (hLocation, toHeader $ uriToString id uri "")
 
 handlerize :: IO r -> Handler r
 handlerize action = coerce do fmap (Right @ServerError) action
