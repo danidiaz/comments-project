@@ -15,10 +15,10 @@ import Cauldron
 import Cauldron.Builder
 import Cauldron.Managed
 import Comments.Api (CommentsLinks, makeLinks)
+import Comments.Api.Runner
+import Comments.Api.Server
 import Comments.Repository
 import Comments.Repository.Sqlite qualified
-import Comments.Runner
-import Comments.Server
 import Control.Exception (throwIO)
 import Control.Monad.IO.Class
 import Data.Function ((&))

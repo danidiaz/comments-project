@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoFieldSelectors #-}
 
-module Comments.Server (CommentsServer (..), makeCommentsServer) where
+module Comments.Api.Server (CommentsServer (..), makeCommentsServer) where
 
 import Comments
 import Comments.Api

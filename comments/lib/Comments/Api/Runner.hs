@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Comments.Runner
+module Comments.Api.Runner
   ( RunnerConf (..),
     Runner (..),
     makeRunner,
@@ -13,7 +13,7 @@ module Comments.Runner
 where
 
 import Comments.Api
-import Comments.Server
+import Comments.Api.Server
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Reader

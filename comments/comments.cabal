@@ -55,8 +55,8 @@ library
         Comments.Repository
         Comments.Repository.Sqlite
         Comments.Api
-        Comments.Server
-        Comments.Runner
+        Comments.Api.Server
+        Comments.Api.Runner
     build-depends:
         base,
         cauldron,
@@ -83,4 +83,15 @@ library
         dani-beans:jsonconf,
         network-uri,
     hs-source-dirs:   lib
+
+test-suite comments-test
+    import:           language
+    type:             exitcode-stdio-1.0
+    main-is:          tests.hs
+    hs-source-dirs:   test
+    build-depends:
+        base,
+        comments,
+        tasty,
+        tasty-hunit
 
