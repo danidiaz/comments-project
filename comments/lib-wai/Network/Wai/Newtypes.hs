@@ -1,31 +1,21 @@
 {-# LANGUAGE NoFieldSelectors #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE DerivingVia #-}
 module Network.Wai.Newtypes (
-    Application_,
-    fromApplication,
-    getApplication,
-    Middleware_,
-    fromMiddleware,
-    applyMiddleware
+    Application_ (..),
+    Middleware_ (..),
+    applyMiddleware_
 ) where
 
--- | Skeleton for Wai.Newtypes module
-
 import Network.Wai
+import Data.Monoid (Endo(..), Dual(..))
 
-newtype Application_ = Application_ Application
+newtype Application_ = Application_ { application :: Application }
 
-fromApplication :: Application -> Application_
-fromApplication app = Application_ app
+-- | In the 'Semigroup' instance, the left 'Middleware_' will be applied /first/ to the 'Application_'!
+newtype Middleware_ = Middleware_ { middleware :: Middleware }
+    deriving (Semigroup, Monoid) via (Dual (Endo Application))
 
-getApplication :: Application_ -> Application
-getApplication (Application_ app) = app
-
-newtype Middleware_ = Middleware_ Middleware
-
-fromMiddleware :: Middleware -> Middleware_
-fromMiddleware mw = Middleware_ mw
-
-applyMiddleware :: Middleware_ -> Application_ -> Application_
-applyMiddleware (Middleware_ mw) (Application_ app) = Application_ (mw app)
+applyMiddleware_ :: Middleware_ -> Application_ -> Application_
+applyMiddleware_ (Middleware_ {middleware}) (Application_ {application}) = 
+    Application_ { application = middleware application }
 
