@@ -84,6 +84,16 @@ library
         network-uri,
     hs-source-dirs:   lib
 
+library dani-beans-wai
+    import:           language
+    exposed-modules:
+        Network.Wai.Newtypes
+    build-depends:
+        base,
+        wai
+    hs-source-dirs:   lib-wai
+    -- other-modules:
+
 test-suite comments-test
     import:           language
     type:             exitcode-stdio-1.0
