@@ -22,6 +22,7 @@ Then:
 ```
 cabal build all
 cabal run comments:exe:comments
+cabal run comments:exe:comments-manual-wiring
 ```
 
 And navigate to `http://localhost:8000/comments`.
