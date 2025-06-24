@@ -3,26 +3,24 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Comments.Root
-  ( appMain,
+  ( cauldron,
+    appMain,
     manuallyWiredAppMain,
-    polymorphicallyWiredAppMain',
-    polymorphicallyWiredAppMain'',
     dependencyGraphMain,
   )
 where
 
 import Cauldron
-import Cauldron.Builder
 import Cauldron.Managed
 import Comments.Api (CommentsLinks, makeLinks)
 import Comments.Api.Runner
 import Comments.Api.Server
+import Comments.Sqlite
 import Comments.Repository
 import Comments.Repository.Sqlite qualified
 import Control.Exception (throwIO)
 import Control.Monad.IO.Class
 import Data.Function ((&))
-import Data.Functor.Identity
 import JsonConf
 import JsonConf.YamlFile qualified
 import Log
@@ -55,7 +53,13 @@ cauldron =
     recipe @(IO Connection) $ val $ wire (readThreadLocal @Connection),
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
     recipe @CommentsLinks $ ioEff $ wire $ makeLinks,
-    recipe @CommentsServer $ val $ wire makeCommentsServer,
+    recipe @CommentsServer $ Recipe {
+      bean = val $ wire makeCommentsServer,
+      decos = [
+        val $ wire $ \poll tlocal -> 
+          Comments.Api.Server.hoistCommentsServer (Comments.Sqlite.withConnection poll tlocal)
+      ]
+    },
     recipe @RunnerConf $ ioEff $ wire $ JsonConf.lookupSection @RunnerConf "runner",
     recipe @Runner $ val $ wire $ makeRunner
   ]
@@ -68,47 +72,16 @@ manuallyWired = do
   logger <- managed withStdOutLogger
   sqlitePoolConf <- liftIO $ JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
   sqlitePool <- managed $ Sqlite.Pool.make sqlitePoolConf
-  threadLocal <- liftIO makeThreadLocal
-  let currentConnection = readThreadLocal threadLocal
+  threadLocalConn <- liftIO makeThreadLocal
+  let currentConnection = readThreadLocal threadLocalConn
   let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
   links <- liftIO makeLinks
-  let commentsServer = makeCommentsServer logger links commentsRepository
+  let commentsServer = 
+        makeCommentsServer logger links commentsRepository &
+        Comments.Api.Server.hoistCommentsServer (Comments.Sqlite.withConnection sqlitePool threadLocalConn)
   runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
-  pure $ makeRunner runnerConf sqlitePool threadLocal logger commentsServer
+  pure $ makeRunner runnerConf logger commentsServer
 
 manuallyWiredAppMain :: IO ()
 manuallyWiredAppMain = do
   with manuallyWired \Runner {runServer} -> runServer
-
-polymorphicallyWired :: (MonadWiring m, ConstructorMonad m ~ Managed) => m (ArgsApplicative m Runner)
-polymorphicallyWired = do
-  jsonConf <- do
-    let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
-    _ioEff_ $ pure makeJsonConf
-  logger <- _eff_ $ pure $ managed withStdOutLogger
-  sqlitePoolConf <- _ioEff_ $ JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> jsonConf
-  sqlitePool <- _eff_ $ (\conf -> managed $ Sqlite.Pool.make conf) <$> sqlitePoolConf
-  threadLocal <- _ioEff_ $ pure $ makeThreadLocal
-  currentConnection <- _val_ $ readThreadLocal <$> threadLocal
-  commentsRepository <- _val_ $ Comments.Repository.Sqlite.make <$> logger <*> currentConnection
-  links <- _ioEff_ $ pure makeLinks
-  commentsServer <- _val_ $ makeCommentsServer <$> logger <*> links <*> commentsRepository
-  runnerConf <- _ioEff_ $ JsonConf.lookupSection @RunnerConf "runner" <$> jsonConf
-  _val_ $ makeRunner <$> runnerConf <*> sqlitePool <*> threadLocal <*> logger <*> commentsServer
-
-polymorphicallyWired' :: Managed Runner
-polymorphicallyWired' = runIdentity <$> polymorphicallyWired
-
-polymorphicallyWiredAppMain' :: IO ()
-polymorphicallyWiredAppMain' = do
-  with polymorphicallyWired' \Runner {runServer} -> runServer
-
-polymorphicallyWired'' :: IO (Cauldron Managed)
-polymorphicallyWired'' = polymorphicallyWired & execBuilder & either throwIO pure
-
-polymorphicallyWiredAppMain'' :: IO ()
-polymorphicallyWiredAppMain'' = do
-  theCauldron <- polymorphicallyWired''
-  cook forbidDepCycles theCauldron & either throwIO \action ->
-    with action \(Runner {runServer}) -> do
-      runServer

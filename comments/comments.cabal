@@ -30,6 +30,20 @@ executable comments
         app
     ghc-options: -threaded
 
+executable comments-manual-wiring
+    import:           
+        language
+    main-is:          
+        Main.hs
+    -- other-modules:
+    -- other-extensions:
+    build-depends:
+        base,
+        comments,
+    hs-source-dirs:   
+        app-manual
+    ghc-options: -threaded
+
 -- | Executable that generates .dot diagrams of the application dependency graph.
 executable comments-depgraph
     import:           

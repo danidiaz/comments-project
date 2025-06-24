@@ -21,7 +21,7 @@ Then:
 
 ```
 cabal build all
-cabal run comments
+cabal run comments:exe:comments
 ```
 
 And navigate to `http://localhost:8000/comments`.
