@@ -56,8 +56,7 @@ cauldron =
     recipe @CommentsServer $ Recipe {
       bean = val $ wire makeCommentsServer,
       decos = [
-        val $ wire $ \poll tlocal -> 
-          Comments.Api.Server.hoistCommentsServer (Comments.Sqlite.withConnection poll tlocal)
+        val $ wire $ Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer 
       ]
     },
     recipe @RunnerConf $ ioEff $ wire $ JsonConf.lookupSection @RunnerConf "runner",
@@ -78,7 +77,7 @@ manuallyWired = do
   links <- liftIO makeLinks
   let commentsServer = 
         makeCommentsServer logger links commentsRepository &
-        Comments.Api.Server.hoistCommentsServer (Comments.Sqlite.withConnection sqlitePool threadLocalConn)
+        Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer sqlitePool threadLocalConn
   runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
   pure $ makeRunner runnerConf logger commentsServer
 
