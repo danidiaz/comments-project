@@ -28,6 +28,8 @@ import Log.Backend.StandardOutput
 import Sqlite (Connection)
 import Sqlite.Pool
 import ThreadLocal
+import Comments.Api.Wai 
+import Network.Wai.Newtypes
 
 dependencyGraphMain :: IO ()
 dependencyGraphMain = do
@@ -59,6 +61,8 @@ cauldron =
         val $ wire $ Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer 
       ]
     },
+    recipe @StaticServeConf $ ioEff $ wire $ JsonConf.lookupSection @StaticServeConf "runner",
+    recipe @Application_ $ val $ wire $ makeApplication_,
     recipe @RunnerConf $ ioEff $ wire $ JsonConf.lookupSection @RunnerConf "runner",
     recipe @Runner $ val $ wire $ makeRunner
   ]
@@ -78,8 +82,10 @@ manuallyWired = do
   let commentsServer = 
         makeCommentsServer logger links commentsRepository &
         Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer sqlitePool threadLocalConn
+  staticServeConf <- liftIO $ JsonConf.lookupSection @StaticServeConf "runner" jsonConf
+  let application_ = makeApplication_ staticServeConf commentsServer
   runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
-  pure $ makeRunner runnerConf logger commentsServer
+  pure $ makeRunner runnerConf logger application_
 
 manuallyWiredAppMain :: IO ()
 manuallyWiredAppMain = do
