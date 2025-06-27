@@ -2,11 +2,10 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DataKinds #-}
-module Comments.Api.Wai (StaticServeConf(..), makeApplication_) where
+module Comments.Api.WholeServer (StaticServeConf(..), makeApplication_) where
 
 import Network.Wai.Newtypes
 import Comments.Api
-import Comments.Api.Server
 import Data.Aeson
 import Servant.API
 import Servant.Server
@@ -21,8 +20,8 @@ data StaticServeConf = StaticServeConf
   deriving stock (Generic)
   deriving anyclass (FromJSON, ToJSON)
 
-makeApplication_ :: StaticServeConf -> CommentsServer -> Application_
-makeApplication_ StaticServeConf {staticAssetsFolder} CommentsServer {server} = Application_ {application}
+makeApplication_ :: Server Api -> StaticServeConf -> Application_
+makeApplication_ server StaticServeConf {staticAssetsFolder} = Application_ {application}
     where
       staticAssetsServer = serveDirectoryWebApp staticAssetsFolder
       application :: Application

@@ -71,7 +71,7 @@ library
         Comments.Repository.Sqlite
         Comments.Api
         Comments.Api.Server
-        Comments.Api.Wai
+        Comments.Api.WholeServer
         Comments.Api.Runner
     build-depends:
         base,
