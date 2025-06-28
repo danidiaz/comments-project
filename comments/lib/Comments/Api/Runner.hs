@@ -15,7 +15,7 @@ where
 import Data.Aeson
 import GHC.Generics (Generic)
 import Log
-import Network.Wai.Newtypes
+import Network.Wai.Bean
 import Network.Wai.Handler.Warp (run)
 
 data RunnerConf = RunnerConf

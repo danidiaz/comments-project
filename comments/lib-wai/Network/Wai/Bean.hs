@@ -1,6 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE DerivingVia #-}
-module Network.Wai.Newtypes (
+module Network.Wai.Bean (
     Application_ (..),
     Middleware_ (..),
     applyMiddleware_

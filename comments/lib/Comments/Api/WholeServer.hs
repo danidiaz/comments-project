@@ -4,7 +4,7 @@
 {-# LANGUAGE DataKinds #-}
 module Comments.Api.WholeServer (StaticServeConf(..), makeApplication_) where
 
-import Network.Wai.Newtypes
+import Network.Wai.Bean
 import Comments.Api
 import Data.Aeson
 import Servant.API

@@ -104,7 +104,7 @@ library
 library dani-beans-wai
     import:           language
     exposed-modules:
-        Network.Wai.Newtypes
+        Network.Wai.Bean
     build-depends:
         base,
         wai

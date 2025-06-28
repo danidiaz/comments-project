@@ -29,7 +29,7 @@ import Sqlite (Connection)
 import Sqlite.Pool
 import ThreadLocal
 import Comments.Api.WholeServer 
-import Network.Wai.Newtypes
+import Network.Wai.Bean
 
 dependencyGraphMain :: IO ()
 dependencyGraphMain = do
