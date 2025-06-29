@@ -98,7 +98,7 @@ library
         dani-beans:jsonconf,
         network-uri,
         dani-beans-wai,
-        dani-beans-pool,
+        dani-beans-resource-pool,
     hs-source-dirs:   lib
 
 library dani-beans-wai
@@ -111,8 +111,8 @@ library dani-beans-wai
     hs-source-dirs:   lib-wai
     -- other-modules:
 
-library dani-beans-pool
-    hs-source-dirs:   lib-pool
+library dani-beans-resource-pool
+    hs-source-dirs:   lib-resource-pool
     exposed-modules:
         Sqlite.Pool
     build-depends:
