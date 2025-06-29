@@ -26,7 +26,6 @@ import JsonConf.YamlFile qualified
 import Log
 import Log.Backend.StandardOutput
 import Sqlite (Connection)
-import Sqlite.Pool
 import ThreadLocal
 import Comments.Api.WholeServer 
 import Network.Wai.Bean

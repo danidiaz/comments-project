@@ -114,7 +114,7 @@ library dani-beans-wai
 library dani-beans-resource-pool
     hs-source-dirs:   lib-resource-pool
     exposed-modules:
-        Sqlite.Pool
+        Data.Pool.Introspection.Bean
     build-depends:
         base       >= 4.16.0.0 && < 5,
         aeson >= 2.2 && < 2.3,
