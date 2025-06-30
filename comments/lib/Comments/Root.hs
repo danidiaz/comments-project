@@ -34,9 +34,12 @@ import Network.Wai.Bean
 dependencyGraphMain :: IO ()
 dependencyGraphMain = do
   let depGraph = getDependencyGraph cauldron
-  writeAsDot (defaultStyle Nothing) "beans.dot" $ depGraph
-  writeAsDot (defaultStyle Nothing) "beans-decos.dot" $ collapseBeans $ removeAggregates $ depGraph
-  writeAsDot (defaultStyle Nothing) "beans-simple.dot" $ collapseBeans $ removeDecos $ removeAggregates $ depGraph
+  let mgraph = case cook @Runner forbidDepCycles cauldron of
+        Left err -> Just err
+        Right _ -> Nothing
+  writeAsDot (defaultStyle mgraph) "beans.dot" $ depGraph
+  writeAsDot (defaultStyle mgraph) "beans-decos.dot" $ collapseBeans $ removeAggregates $ depGraph
+  writeAsDot (defaultStyle mgraph) "beans-simple.dot" $ collapseBeans $ removeDecos $ removeAggregates $ depGraph
 
 appMain :: IO ()
 appMain = do
