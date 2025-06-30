@@ -31,14 +31,6 @@ makeSqlitePool SqlitePoolConf {databaseFile}
      = do
         Data.Pool.Introspection.Bean.make (Sqlite.openV2NoMutexReadWrite databaseFile) Sqlite.close poolConf
 
--- 
--- type SqlitePool = Pool.Pool Connection
--- 
--- make :: forall r. IO r -> (r -> IO ()) -> PoolConf -> forall x. (Pool.Pool r -> IO x) -> IO x
--- make SqlitePoolConf {databaseFile, poolSize} continuation = do
---   let poolConfig = Pool.defaultPoolConfig (Sqlite.openV2NoMutexReadWrite databaseFile) Sqlite.close 3600 poolSize
---   bracket (Pool.newPool poolConfig) Pool.destroyAllResources continuation
-
 withConnection :: 
   SqlitePool ->
   ThreadLocal Connection -> (forall x . IO x -> IO x)

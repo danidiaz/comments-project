@@ -18,6 +18,7 @@ import Comments.Api.Server
 import Comments.Sqlite
 import Comments.Repository
 import Comments.Repository.Sqlite qualified
+import Data.Pool.Introspection.Bean (PoolConf)
 import Control.Exception (throwIO)
 import Control.Monad.IO.Class
 import Data.Function ((&))
@@ -45,11 +46,13 @@ appMain = do
 
 cauldron :: Cauldron Managed
 cauldron =
-  [ let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
+  [ 
+    let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
      in recipe @JsonConf $ ioEff $ wire makeJsonConf,
     recipe @Logger $ eff $ wire $ managed withStdOutLogger,
     recipe @SqlitePoolConf $ ioEff $ wire $ JsonConf.lookupSection @SqlitePoolConf "sqlite",
-    recipe @SqlitePool $ eff $ wire \conf -> managed $ Sqlite.Pool.make conf,
+    recipe @PoolConf $ ioEff $ wire $ JsonConf.lookupSection @PoolConf "sqlite",
+    recipe @SqlitePool $ eff $ wire \sqliteconf conf -> managed $ Comments.Sqlite.makeSqlitePool sqliteconf conf,
     recipe @(ThreadLocal Connection) $ ioEff $ wire makeThreadLocal,
     recipe @(IO Connection) $ val $ wire (readThreadLocal @Connection),
     recipe @CommentsRepository $ val $ wire Comments.Repository.Sqlite.make,
@@ -73,7 +76,8 @@ manuallyWired = do
      in liftIO $ makeJsonConf
   logger <- managed withStdOutLogger
   sqlitePoolConf <- liftIO $ JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
-  sqlitePool <- managed $ Sqlite.Pool.make sqlitePoolConf
+  poolConf <- liftIO $ JsonConf.lookupSection @PoolConf "sqlite" jsonConf
+  sqlitePool <- managed $ Comments.Sqlite.makeSqlitePool sqlitePoolConf poolConf
   threadLocalConn <- liftIO makeThreadLocal
   let currentConnection = readThreadLocal threadLocalConn
   let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection

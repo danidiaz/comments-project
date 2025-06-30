@@ -5,16 +5,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Data.Pool.Introspection.Bean (PoolConf(..), Pool, make, Pool.Resource(..)) where
+module Data.Pool.Introspection.Bean (
+  PoolConf(..), 
+  Pool.Pool, 
+  Pool.Resource(..),
+  make, 
+  ) where
 
 import Control.Exception
 import Data.Aeson
 import Data.Pool.Introspection qualified as Pool
 import Data.Text
 import GHC.Generics (Generic)
-import Sqlite
-
-type Pool r = Pool.Pool r
 
 data PoolConf = PoolConf
   { 

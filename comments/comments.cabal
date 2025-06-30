@@ -120,7 +120,6 @@ library dani-beans-resource-pool
         aeson >= 2.2 && < 2.3,
         resource-pool >= 0.4,
         text       >= 2.0,
-        dani-sqlite,
 
     ghc-options:      -Wall -fwarn-tabs
     default-language: GHC2021

@@ -36,6 +36,7 @@ ormolu --mode inplace $(git ls-files '*.hs')
 ```
 dot -Tpng beans.dot >beans.png
 dot -Tsvg beans.dot >beans.svg
+watchexec watchexec "cabal run comments:exe:comments-depgraph && dot -Tsvg beans-simple.dot > beans.svg"
 python -m http.server
 ```
 
