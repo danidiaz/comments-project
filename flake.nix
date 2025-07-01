@@ -19,6 +19,7 @@
                     pkgs.watchexec 
                     pkgs.python314
                     pkgs.ormolu
+                    pkgs.ghcid
                 ];
                 # https://www.reddit.com/r/NixOS/comments/110xqki/comment/j8k996e/
                 shellHook = 

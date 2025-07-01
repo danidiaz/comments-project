@@ -43,6 +43,7 @@ export PATH=/usr/bin:$PATH
 cabal exec -- runghc comments/app-depgraph/Main.hs
 # sadly, lib changes still require recompilation :(
 watchexec -e hs "cabal exec -- runghc comments/app-depgraph/Main.hs && dot -Tsvg beans-simple.dot > beans.svg"
+ghcid --command="cabal repl lib:comments" --warnings --test="dependencyGraphMain"
 python -m http.server
 ```
 
