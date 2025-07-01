@@ -36,7 +36,13 @@ ormolu --mode inplace $(git ls-files '*.hs')
 ```
 dot -Tpng beans.dot >beans.png
 dot -Tsvg beans.dot >beans.svg
-watchexec watchexec "cabal run comments:exe:comments-depgraph && dot -Tsvg beans-simple.dot > beans.svg"
+watchexec "cabal run comments:exe:comments-depgraph && dot -Tsvg beans-simple.dot > beans.svg"
+# This avoids annoying `undefined symbol: __tunable_is_initialized, version GLIBC_PRIVATE` errors
+# caused by cabal changing 
+export PATH=/usr/bin:$PATH
+cabal exec -- runghc comments/app-depgraph/Main.hs
+# sadly, lib changes still require recompilation :(
+watchexec -e hs "cabal exec -- runghc comments/app-depgraph/Main.hs && dot -Tsvg beans-simple.dot > beans.svg"
 python -m http.server
 ```
 
