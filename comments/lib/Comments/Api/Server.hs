@@ -7,6 +7,7 @@
 
 module Comments.Api.Server (
     CommentsServer (..), 
+    unwrap,
     makeCommentsServer,
     hoistCommentsServer 
   ) where
@@ -28,6 +29,9 @@ import Servant.API
 import Servant.Server (Handler, ServerT)
 
 newtype CommentsServer = CommentsServer {server :: Server Api}
+
+unwrap :: CommentsServer -> Server Api
+unwrap CommentsServer {server} = server 
 
 makeCommentsServer ::
   Logger ->
