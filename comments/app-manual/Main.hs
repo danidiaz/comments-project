@@ -1,7 +1,6 @@
-import Comments.Root
-  ( 
-  manuallyWiredAppMain,
-  )
+module Main (main) where
+
+import Comments.Root.Manual qualified
 
 main :: IO ()
-main = manuallyWiredAppMain
+main = Comments.Root.Manual.main

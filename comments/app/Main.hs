@@ -1,6 +1,6 @@
-import Comments.Root
-  ( appMain,
-  )
+module Main (main) where
+
+import Comments.Root qualified
 
 main :: IO ()
-main = appMain
+main = Comments.Root.main

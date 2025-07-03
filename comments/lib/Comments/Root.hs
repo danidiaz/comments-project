@@ -8,9 +8,7 @@
 
 module Comments.Root
   ( cauldron,
-    appMain,
-    manuallyWiredAppMain,
-    dependencyGraphMain,
+    main,
   )
 where
 
@@ -35,37 +33,6 @@ import Sqlite (Connection)
 import ThreadLocal
 import Comments.Api.WholeServer 
 import Network.Wai.Bean
-import System.Process
-import Control.Concurrent.Async (forConcurrently_)
-import System.FilePath (replaceExtension)
-import Control.Concurrent.QSem
-import Control.Exception (bracket_)
-
-dependencyGraphMain :: IO ()
-dependencyGraphMain = do
-  let merr = case cook @Runner forbidDepCycles cauldron of
-        Left err -> Just err
-        Right _ -> Nothing
-  let depGraph = getDependencyGraph cauldron
-  qsem <- newQSem 1
-  forConcurrently_ @[] [
-    let file = "beans.dot" in (file, writeAsDot (defaultStyle merr) file),
-    let file = "beans-decos.dot" in (file, writeAsDot (defaultStyle merr) file . collapseBeans . removeAggregates),
-    let file = "beans-simple.dot" in (file, writeAsDot (defaultStyle merr) file . collapseBeans . removeDecos)
-    ] \(file, action) -> do 
-          _ <- action depGraph
-          let svg = replaceExtension file "svg" 
-          callCommand $ "dot -Tsvg " ++ file ++ " > " ++ svg
-          bracket_
-            (waitQSem qsem)
-            (signalQSem qsem)
-            (putStrLn $ "Refreshed " ++ svg)
-
-appMain :: IO ()
-appMain = do
-  cook @Runner forbidDepCycles cauldron & either throwIO \action ->
-    with action \(Runner {runServer}) -> do
-      runServer
 
 cauldron :: Cauldron Managed
 cauldron =
@@ -96,27 +63,8 @@ cauldron =
     recipe @Runner $ makeRunner & wire & val
   ]
 
-manuallyWired :: Managed Runner
-manuallyWired = do
-  jsonConf <-
-    let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
-     in liftIO $ makeJsonConf
-  logger <- managed withStdOutLogger
-  sqlitePoolConf <- liftIO $ JsonConf.lookupSection @SqlitePoolConf "sqlite" jsonConf
-  poolConf <- liftIO $ JsonConf.lookupSection @PoolConf "sqlite" jsonConf
-  sqlitePool <- managed $ Comments.Sqlite.makeSqlitePool sqlitePoolConf poolConf
-  threadLocalConn <- liftIO makeThreadLocal
-  let currentConnection = readThreadLocal threadLocalConn
-  let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
-  links <- liftIO makeLinks
-  let CommentsServer { server = commentsServer } = 
-        makeCommentsServer logger links commentsRepository &
-        Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer sqlitePool threadLocalConn
-  staticServeConf <- liftIO $ JsonConf.lookupSection @StaticServeConf "runner" jsonConf
-  let application_ = makeApplication_ commentsServer staticServeConf
-  runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
-  pure $ makeRunner runnerConf logger application_
-
-manuallyWiredAppMain :: IO ()
-manuallyWiredAppMain = do
-  with manuallyWired \Runner {runServer} -> runServer
+main :: IO ()
+main = do
+  cook @Runner forbidDepCycles cauldron & either throwIO \action ->
+    with action \(Runner {runServer}) -> do
+      runServer

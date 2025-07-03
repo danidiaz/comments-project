@@ -65,6 +65,8 @@ library
     exposed-modules:  
         -- modules proper to this application
         Comments.Root
+        Comments.Root.Manual
+        Comments.Root.Graph
         Comments
         Comments.Sqlite
         Comments.Repository
