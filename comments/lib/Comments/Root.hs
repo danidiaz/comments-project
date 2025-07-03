@@ -15,7 +15,6 @@ module Comments.Root
 where
 
 import Cauldron
-import Cauldron.Args
 import Cauldron.Managed
 import Comments.Api (CommentsLinks, makeLinks)
 import Comments.Api.Runner
