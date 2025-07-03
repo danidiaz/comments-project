@@ -14,13 +14,11 @@ where
 import Data.Function ((&))
 import Data.Proxy
 import Data.Text (Text)
-import GHC.Generics
 import GHC.Generics (Generic)
 import Lucid
 import Network.URI
 import Servant.API
 import Servant.API.ContentTypes.Lucid
-import Servant.API.NamedRoutes
 import Servant.Links
 import Web.FormUrlEncoded
 

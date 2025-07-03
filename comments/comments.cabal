@@ -99,6 +99,9 @@ library
         network-uri,
         dani-beans-wai,
         dani-beans-resource-pool,
+        process,
+        async,
+        filepath,
     hs-source-dirs:   lib
 
 library dani-beans-wai

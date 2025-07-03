@@ -35,16 +35,31 @@ import Sqlite (Connection)
 import ThreadLocal
 import Comments.Api.WholeServer 
 import Network.Wai.Bean
+import System.Process
+import Control.Concurrent.Async (forConcurrently_)
+import System.FilePath (replaceExtension)
+import Control.Concurrent.QSem
+import Control.Exception (bracket_)
 
 dependencyGraphMain :: IO ()
 dependencyGraphMain = do
-  let depGraph = getDependencyGraph cauldron
-  let mgraph = case cook @Runner forbidDepCycles cauldron of
+  let merr = case cook @Runner forbidDepCycles cauldron of
         Left err -> Just err
         Right _ -> Nothing
-  writeAsDot (defaultStyle mgraph) "beans.dot" $ depGraph
-  writeAsDot (defaultStyle mgraph) "beans-decos.dot" $ collapseBeans $ removeAggregates $ depGraph
-  writeAsDot (defaultStyle mgraph) "beans-simple.dot" $ collapseBeans $ removeDecos $ removeAggregates $ depGraph
+  let depGraph = getDependencyGraph cauldron
+  qsem <- newQSem 1
+  forConcurrently_ @[] [
+    let file = "beans.dot" in (file, writeAsDot (defaultStyle merr) file),
+    let file = "beans-decos.dot" in (file, writeAsDot (defaultStyle merr) file . collapseBeans . removeAggregates),
+    let file = "beans-simple.dot" in (file, writeAsDot (defaultStyle merr) file . collapseBeans . removeDecos)
+    ] \(file, action) -> do 
+          _ <- action depGraph
+          let svg = replaceExtension file "svg" 
+          callCommand $ "dot -Tsvg " ++ file ++ " > " ++ svg
+          bracket_
+            (waitQSem qsem)
+            (signalQSem qsem)
+            (putStrLn $ "Refreshed " ++ svg)
 
 appMain :: IO ()
 appMain = do

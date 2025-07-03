@@ -20,13 +20,10 @@ import Data.Coerce
 import Data.Foldable
 import Log
 import Lucid
-import Lucid.Html5
 -- import Lucid.Servant
 import Network.HTTP.Types.Header
 import Network.URI (uriToString)
 import Servant
-import Servant.API
-import Servant.Server (Handler, ServerT)
 
 newtype CommentsServer = CommentsServer {server :: Server Api}
 
