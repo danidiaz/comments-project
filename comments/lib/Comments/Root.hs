@@ -76,7 +76,7 @@ cauldron =
       ]
     },
     recipe @StaticServeConf $ JsonConf.lookupSection @StaticServeConf "runner" & wire & ioEff,
-    recipe @Application_ $ val $ wire $ \(CommentsServer { server }) -> Comments.Api.WholeServer.makeApplication_ server,
+    -- recipe @Application_ $ val $ wire $ \(CommentsServer { server }) -> Comments.Api.WholeServer.makeApplication_ server,
     recipe @Application_ $ Comments.Api.WholeServer.makeApplication_ <$> fmap Comments.Api.Server.unwrap arg <*> arg & val,
     recipe @RunnerConf $ JsonConf.lookupSection @RunnerConf "runner" & wire & ioEff,
     recipe @Runner $ makeRunner & wire & val
