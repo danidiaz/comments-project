@@ -71,6 +71,7 @@ library
         Comments.Sqlite
         Comments.Repository
         Comments.Repository.Sqlite
+        Comments.Repository.Memory
         Comments.Api
         Comments.Api.Server
         Comments.Api.WholeServer
