@@ -38,35 +38,35 @@ import Network.Wai.Bean
 cauldron :: Cauldron Managed
 cauldron = mconcat [ 
     let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
-     in singleton @JsonConf $ ioEff_ $ pure makeJsonConf,
-    singleton @Logger $ eff_ $ pure $ managed withStdOutLogger,
-    singleton @SqlitePoolConf $ ioEff_ $ wire $ JsonConf.lookupSection @SqlitePoolConf "sqlite",
-    singleton @PoolConf $ ioEff_ $ wire $ JsonConf.lookupSection @PoolConf "sqlite",
-    singleton @SqlitePool $ eff_ $ wire $ \sconf pconf -> managed $ Comments.Sqlite.makeSqlitePool sconf pconf,
-    singleton @(ThreadLocal Connection) $ ioEff_ $ pure makeThreadLocal,
+     in recipe @JsonConf $ ioEff_ $ pure makeJsonConf,
+    recipe @Logger $ eff_ $ pure $ managed withStdOutLogger,
+    recipe @SqlitePoolConf $ ioEff_ $ wire $ JsonConf.lookupSection @SqlitePoolConf "sqlite",
+    recipe @PoolConf $ ioEff_ $ wire $ JsonConf.lookupSection @PoolConf "sqlite",
+    recipe @SqlitePool $ eff_ $ wire $ \sconf pconf -> managed $ Comments.Sqlite.makeSqlitePool sconf pconf,
+    recipe @(ThreadLocal Connection) $ ioEff_ $ pure makeThreadLocal,
     -- IO Connection |=| val_ $ readThreadLocal @Connection <$> arg,
-    singleton @(IO Connection) $ val_ $ wire $ readThreadLocal @Connection,
-    singleton @CommentsRepository $ val_ $ wire $ Comments.Repository.Sqlite.make,
-    singleton @CommentsLinks $ ioEff_ $ pure makeLinks,
-    singleton @CommentsServer $ Recipe {
+    recipe @(IO Connection) $ val_ $ wire $ readThreadLocal @Connection,
+    recipe @CommentsRepository $ val_ $ wire $ Comments.Repository.Sqlite.make,
+    recipe @CommentsLinks $ ioEff_ $ pure makeLinks,
+    recipe @CommentsServer $ Recipe {
       bare = val_ $ wire makeCommentsServer,
       decos = [
         val_ $ wire $ Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer
       ]
     },
-    singleton @StaticServeConf $ ioEff_ $ wire $ JsonConf.lookupSection @StaticServeConf "runner",
-    singleton @Application_ $ val_ $ Comments.Api.WholeServer.makeApplication_ <$> fmap Comments.Api.Server.unwrap arg <*> arg,
-    singleton @RunnerConf $ ioEff_ $ wire $ JsonConf.lookupSection @RunnerConf "runner",
-    singleton @Runner $ val_ $ wire makeRunner
+    recipe @StaticServeConf $ ioEff_ $ wire $ JsonConf.lookupSection @StaticServeConf "runner",
+    recipe @Application_ $ val_ $ Comments.Api.WholeServer.makeApplication_ <$> fmap Comments.Api.Server.unwrap arg <*> arg,
+    recipe @RunnerConf $ ioEff_ $ wire $ JsonConf.lookupSection @RunnerConf "runner",
+    recipe @Runner $ val_ $ wire makeRunner
     -- (type Runner) |=| val_ $ wire makeRunner
   ]
   -- <> [
-  --   singleton @CommentsRepository $ ioEff_ $ pure Comments.Repository.Memory.make
+  --   recipe @CommentsRepository $ ioEff_ $ pure Comments.Repository.Memory.make
   -- ]
 
 main :: IO ()
 main = do
-  [cauldron] 
+  cauldron 
     & cook @Runner forbidDepCycles 
     & either throwIO \action ->
         with action \(Runner {runServer}) -> do
