@@ -14,10 +14,10 @@ import Control.Exception (bracket_)
 
 main :: IO ()
 main = do
-  let merr = case cook @Runner forbidDepCycles cauldron of
+  let merr = case cook @Runner forbidDepCycles [cauldron] of
         Left err -> Just err
         Right _ -> Nothing
-  let depGraph = getDependencyGraph cauldron
+  let depGraph = getDependencyGraph [cauldron]
   qsem <- newQSem 1
   forConcurrently_ @[] [
     let file = "beans.dot" in (file, writeAsDot (defaultStyle merr) file),

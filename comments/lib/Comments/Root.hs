@@ -2,9 +2,8 @@
 {-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE OverloadedRecordDot #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ImpredicativeTypes #-} -- For some convenience with the types in Managed
+{-# LANGUAGE ExplicitNamespaces #-} -- For some convenience with the types in Managed
 
 module Comments.Root
   ( cauldron,
@@ -34,45 +33,42 @@ import Sqlite (Connection)
 import ThreadLocal
 import Comments.Api.WholeServer 
 import Network.Wai.Bean
+-- import qualified Comments.Repository.Memory
 -- import GHC.Stack (HasCallStack, callStack, withFrozenCallStack)
 
 cauldron :: Cauldron Managed
-cauldron =
-  [ 
+cauldron = mconcat [ 
     let makeJsonConf = JsonConf.YamlFile.make $ JsonConf.YamlFile.loadYamlSettings ["conf.yaml"] [] JsonConf.YamlFile.useEnv
-     in recipe @JsonConf $ ioEff_ $ pure makeJsonConf,
-    -- recipe @Logger $ eff_ $ pure withStdOutLogger <&> managed,
-    recipe @Logger $ eff_ $ managed <$> pure withStdOutLogger,
-    recipe @SqlitePoolConf $ ioEff_ $ JsonConf.lookupSection @SqlitePoolConf "sqlite" <$> arg,
-    recipe @PoolConf $ ioEff_ $ JsonConf.lookupSection @PoolConf "sqlite" <$> arg,
-    -- recipe @SqlitePool $ Comments.Sqlite.makeSqlitePool <$> arg <*> arg <&> managed & eff,
-    recipe @SqlitePool $ eff_ $ managed <$> wire Comments.Sqlite.makeSqlitePool,
-    recipe @(ThreadLocal Connection) $ ioEff_ $ pure makeThreadLocal,
-    recipe @(IO Connection) $ val_ $ readThreadLocal @Connection <$> arg,
-    -- recipe @CommentsRepository $ val_ $ Comments.Repository.Sqlite.make <$> arg <*> arg,
-    recipe @CommentsRepository $ val_ $ Comments.Repository.Sqlite.make <$> arg <*> arg,
-    recipe @CommentsLinks $ ioEff_ $ pure makeLinks,
-    recipe @CommentsServer $ Recipe {
-      bean = val_ $ makeCommentsServer <$> arg <*> arg <*> arg,
-      -- bean = makeCommentsServer & wire & val,
+     in singleton @JsonConf $ ioEff_ $ pure makeJsonConf,
+    singleton @Logger $ eff_ $ pure $ managed withStdOutLogger,
+    singleton @SqlitePoolConf $ ioEff_ $ wire $ JsonConf.lookupSection @SqlitePoolConf "sqlite",
+    singleton @PoolConf $ ioEff_ $ wire $ JsonConf.lookupSection @PoolConf "sqlite",
+    singleton @SqlitePool $ eff_ $ wire $ \sconf pconf -> managed $ Comments.Sqlite.makeSqlitePool sconf pconf,
+    singleton @(ThreadLocal Connection) $ ioEff_ $ pure makeThreadLocal,
+    -- IO Connection |=| val_ $ readThreadLocal @Connection <$> arg,
+    singleton @(IO Connection) $ val_ $ wire $ readThreadLocal @Connection,
+    singleton @CommentsRepository $ val_ $ wire $ Comments.Repository.Sqlite.make,
+    singleton @CommentsLinks $ ioEff_ $ pure makeLinks,
+    singleton @CommentsServer $ Recipe {
+      bean = val_ $ wire makeCommentsServer,
       decos = [
-        -- Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer <$> arg <*> arg <*> arg & val
         val_ $ wire $ Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer
       ]
     },
-    recipe @StaticServeConf $ ioEff_ $ wire $ JsonConf.lookupSection @StaticServeConf "runner",
-    -- recipe @Application_ $ val $ wire $ \(CommentsServer { server }) -> Comments.Api.WholeServer.makeApplication_ server,
-    recipe @Application_ $ val_ $ Comments.Api.WholeServer.makeApplication_ <$> fmap Comments.Api.Server.unwrap arg <*> arg,
-    recipe @RunnerConf $ ioEff_ $ wire $ JsonConf.lookupSection @RunnerConf "runner",
-    recipe @Runner $ val_ $ wire makeRunner
+    singleton @StaticServeConf $ ioEff_ $ wire $ JsonConf.lookupSection @StaticServeConf "runner",
+    singleton @Application_ $ val_ $ Comments.Api.WholeServer.makeApplication_ <$> fmap Comments.Api.Server.unwrap arg <*> arg,
+    singleton @RunnerConf $ ioEff_ $ wire $ JsonConf.lookupSection @RunnerConf "runner",
+    singleton @Runner $ val_ $ wire makeRunner
+    -- (type Runner) |=| val_ $ wire makeRunner
   ]
+  -- <> [
+  --   singleton @CommentsRepository $ ioEff_ $ pure Comments.Repository.Memory.make
+  -- ]
 
 main :: IO ()
 main = do
-  cook @Runner forbidDepCycles cauldron & either throwIO \action ->
-    with action \(Runner {runServer}) -> do
-      runServer
-
--- managedEff_ :: forall bean . (HasCallStack) => Args (forall x . (bean -> IO x) -> IO x) -> Constructor Managed bean
--- managedEff_ args = withFrozenCallStack (eff_ $ managed <$> args)
-
+  [cauldron] 
+    & cook @Runner forbidDepCycles 
+    & either throwIO \action ->
+        with action \(Runner {runServer}) -> do
+          runServer
