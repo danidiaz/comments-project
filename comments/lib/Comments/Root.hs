@@ -49,7 +49,7 @@ cauldron = mconcat [
     singleton @CommentsRepository $ val_ $ wire $ Comments.Repository.Sqlite.make,
     singleton @CommentsLinks $ ioEff_ $ pure makeLinks,
     singleton @CommentsServer $ Recipe {
-      bean = val_ $ wire makeCommentsServer,
+      bare = val_ $ wire makeCommentsServer,
       decos = [
         val_ $ wire $ Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer
       ]
