@@ -2,8 +2,7 @@
 {-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ImpredicativeTypes #-} -- For some convenience with the types in Managed
-{-# LANGUAGE ExplicitNamespaces #-} -- For some convenience with the types in Managed
+{-# LANGUAGE ExplicitNamespaces #-}
 
 module Comments.Root
   ( cauldron,
