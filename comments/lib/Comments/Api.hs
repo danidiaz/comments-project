@@ -33,9 +33,10 @@ data Comments mode = Comments
   }
   deriving stock (Generic)
 
-data IncomingComment = IncomingComment {commentText :: Text} deriving (Generic)
+newtype IncomingComment = IncomingComment {commentText :: Text} deriving (Generic)
 
 instance FromForm IncomingComment
+instance ToForm IncomingComment
 
 newtype CommentsLinks = CommentsLinks {links :: Comments (AsLink URI)}
 

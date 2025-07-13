@@ -139,6 +139,11 @@ test-suite comments-test
     build-depends:
         base,
         comments,
+        cauldron,
+        network-uri,
+        http-client,
+        http-types,
+        async,
         tasty,
         tasty-hunit
 
