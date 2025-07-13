@@ -14,6 +14,7 @@ git submodule update
 Before running the server for the first time:
 
 ```
+cd comments
 sqlite3 db.sqlite < schema.sql
 ```
 
