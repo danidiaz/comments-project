@@ -21,6 +21,7 @@ Then:
 
 ```
 cabal build all
+cd comments
 cabal run comments:exe:comments
 cabal run comments:exe:comments-manual-wiring
 ```
