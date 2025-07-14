@@ -19,6 +19,8 @@ import Comments.Root (cauldron)
 import Cauldron
 import Cauldron.Managed
 import Control.Exception
+import Comments.Repository.Memory qualified 
+import Comments.Repository (CommentsRepository)
 
 targetUri :: CommentsLinks -> URI
 targetUri (CommentsLinks links) = links.mainPage
@@ -49,7 +51,8 @@ tests = testGroup "Comments tests"
   [ testCase "Home page loads" $ do
       mconcat [
         cauldron,
-        recipe @TestBean $ val $ wire homePageLoads
+        recipe @CommentsRepository $ ioEff_ $ wire Comments.Repository.Memory.make,
+        recipe @TestBean $ val_ $ wire homePageLoads
         ]
         & cook @TestBean forbidDepCycles 
         & either throwIO \action ->
