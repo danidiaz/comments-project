@@ -26,10 +26,10 @@ targetUri (CommentsLinks links) = links.mainPage
 main :: IO ()
 main = defaultMain tests
 
-newtype TestHomepage = TestHomepage { runTest :: IO () }
+newtype TestBean = TestBean { runTest :: IO () }
 
-makeTestHomepage :: CommentsLinks -> Runner -> TestHomepage
-makeTestHomepage links Runner { runServer } = TestHomepage do 
+homePageLoads :: CommentsLinks -> Runner -> TestBean
+homePageLoads links Runner { runServer } = TestBean do 
   race_ 
       do
         base <- parseURI "http://localhost:8000" 
@@ -46,13 +46,13 @@ makeTestHomepage links Runner { runServer } = TestHomepage do
 
 tests :: TestTree
 tests = testGroup "Comments tests"
-  [ testCase "Homepage" $ do
+  [ testCase "Home page loads" $ do
       mconcat [
         cauldron,
-        recipe @TestHomepage $ val $ wire makeTestHomepage
+        recipe @TestBean $ val $ wire homePageLoads
         ]
-        & cook @TestHomepage forbidDepCycles 
+        & cook @TestBean forbidDepCycles 
         & either throwIO \action ->
-            with action \(TestHomepage {runTest}) -> runTest
+            with action \(TestBean {runTest}) -> runTest
       pure ()
   ]
