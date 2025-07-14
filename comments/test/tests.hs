@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE NumDecimals #-}
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NoFieldSelectors #-}
 module Main (main) where
 
 import Test.Tasty
@@ -24,25 +26,33 @@ targetUri (CommentsLinks links) = links.mainPage
 main :: IO ()
 main = defaultMain tests
 
+newtype TestHomepage = TestHomepage { runTest :: IO () }
+
+makeTestHomepage :: CommentsLinks -> Runner -> TestHomepage
+makeTestHomepage links Runner { runServer } = TestHomepage do 
+  race_ 
+      do
+        base <- parseURI "http://localhost:8000" 
+                  & maybe (assertFailure "malformed uri") pure
+        let uri = targetUri links `Network.URI.relativeTo` base
+        threadDelay 1e6
+        request <- requestFromURI uri 
+        manager <- newManager defaultManagerSettings
+        response <- httpLbs request manager
+        let code = statusCode $ responseStatus response
+        code & assertEqual "code should be correct" 200
+      do 
+        runServer
+
 tests :: TestTree
 tests = testGroup "Comments tests"
-  [ testCase "Sanity check" $ do
-      cauldron 
-        & cook @Runner forbidDepCycles 
+  [ testCase "Homepage" $ do
+      mconcat [
+        cauldron,
+        recipe @TestHomepage $ val $ wire makeTestHomepage
+        ]
+        & cook @TestHomepage forbidDepCycles 
         & either throwIO \action ->
-            with action \(Runner {runServer}) ->
-                race_ 
-                   do
-                     links <- makeLinks
-                     let Just base = parseURI "http://localhost:8000"
-                     let uri = targetUri links `Network.URI.relativeTo` base
-                     threadDelay 1e6
-                     request <- requestFromURI uri 
-                     manager <- newManager defaultManagerSettings
-                     response <- httpLbs request manager
-                     let code = statusCode $ responseStatus response
-                     code & assertEqual "code should be correct" 200
-                   do 
-                     runServer
+            with action \(TestHomepage {runTest}) -> runTest
       pure ()
   ]
