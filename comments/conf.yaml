@@ -1,5 +1,3 @@
-# configuration file for the commentary server
-#
 runner:
   port: 8000
   staticAssetsFolder: "static"
