@@ -5,12 +5,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Data.Pool.Introspection.Bean (
-  PoolConf(..), 
-  Pool.Pool, 
-  Pool.Resource(..),
-  make, 
-  ) where
+module Data.Pool.Introspection.Bean
+  ( PoolConf (..),
+    Pool.Pool,
+    Pool.Resource (..),
+    make,
+  )
+where
 
 import Control.Exception
 import Data.Aeson
@@ -19,8 +20,7 @@ import Data.Text
 import GHC.Generics (Generic)
 
 data PoolConf = PoolConf
-  { 
-    poolSize :: Int
+  { poolSize :: Int
   }
   deriving stock (Generic)
   deriving anyclass (FromJSON, ToJSON)

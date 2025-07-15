@@ -5,12 +5,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoFieldSelectors #-}
 
-module Comments.Api.Server (
-    CommentsServer (..), 
+module Comments.Api.Server
+  ( CommentsServer (..),
     unwrap,
     makeCommentsServer,
-    hoistCommentsServer 
-  ) where
+    hoistCommentsServer,
+  )
+where
 
 import Comments
 import Comments.Api
@@ -28,7 +29,7 @@ import Servant
 newtype CommentsServer = CommentsServer {server :: Server Api}
 
 unwrap :: CommentsServer -> Server Api
-unwrap CommentsServer {server} = server 
+unwrap CommentsServer {server} = server
 
 makeCommentsServer ::
   Logger ->
@@ -74,7 +75,7 @@ handlerize :: IO r -> Handler r
 handlerize action = coerce do fmap (Right @ServerError) action
 
 hoistCommentsServer :: (forall x. IO x -> IO x) -> CommentsServer -> CommentsServer
-hoistCommentsServer f CommentsServer { server = _server } = CommentsServer { server }
+hoistCommentsServer f CommentsServer {server = _server} = CommentsServer {server}
   where
-  server = hoistServer (Proxy @Api) h _server
-  h (MkHandler action) = MkHandler (f action)
+    server = hoistServer (Proxy @Api) h _server
+    h (MkHandler action) = MkHandler (f action)

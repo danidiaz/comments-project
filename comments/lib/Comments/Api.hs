@@ -36,6 +36,7 @@ data Comments mode = Comments
 newtype IncomingComment = IncomingComment {commentText :: Text} deriving (Generic)
 
 instance FromForm IncomingComment
+
 instance ToForm IncomingComment
 
 newtype CommentsLinks = CommentsLinks {links :: Comments (AsLink URI)}

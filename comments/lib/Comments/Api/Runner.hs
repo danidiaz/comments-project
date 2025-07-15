@@ -37,5 +37,5 @@ makeRunner
   Application_ {application} = Runner {runServer}
     where
       runServer = do
-        runLogT "runner" logger defaultLogLevel do logInfo "Runner started" conf
+        runLogT "runner" logger defaultLogLevel $ logInfo "Runner started" conf
         run port application

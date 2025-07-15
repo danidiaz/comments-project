@@ -1,28 +1,28 @@
-{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ApplicativeDo #-}
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Comments.Root.Manual (main) where
 
+import Cauldron.Managed
 import Comments.Api (CommentsLinks, makeLinks)
 import Comments.Api.Runner
 import Comments.Api.Server
-import Comments.Sqlite
+import Comments.Api.WholeServer
 import Comments.Repository
 import Comments.Repository.Sqlite qualified
-import Data.Pool.Introspection.Bean (PoolConf)
+import Comments.Sqlite
 import Control.Monad.IO.Class
 import Data.Function ((&))
+import Data.Pool.Introspection.Bean (PoolConf)
 import JsonConf
 import JsonConf.YamlFile qualified
 import Log
 import Log.Backend.StandardOutput
+import Network.Wai.Bean
 import Sqlite (Connection)
 import ThreadLocal
-import Comments.Api.WholeServer 
-import Network.Wai.Bean
-import Cauldron.Managed
 
 manuallyWired :: Managed Runner
 manuallyWired = do
@@ -37,9 +37,9 @@ manuallyWired = do
   let currentConnection = readThreadLocal threadLocalConn
   let commentsRepository = Comments.Repository.Sqlite.make logger currentConnection
   links <- liftIO makeLinks
-  let CommentsServer { server = commentsServer } = 
-        makeCommentsServer logger links commentsRepository &
-        Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer sqlitePool threadLocalConn
+  let CommentsServer {server = commentsServer} =
+        makeCommentsServer logger links commentsRepository
+          & Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer sqlitePool threadLocalConn
   staticServeConf <- liftIO $ JsonConf.lookupSection @StaticServeConf "runner" jsonConf
   let application_ = makeApplication_ commentsServer staticServeConf
   runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
