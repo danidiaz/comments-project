@@ -6,11 +6,10 @@
 module Comments.Root.Manual (main) where
 
 import Cauldron.Managed
-import Comments.Api (CommentsLinks, makeLinks)
+import Comments.Api (makeLinks)
 import Comments.Api.Runner
 import Comments.Api.Server
 import Comments.Api.WholeServer
-import Comments.Repository
 import Comments.Repository.Sqlite qualified
 import Comments.Sqlite
 import Control.Monad.IO.Class
@@ -18,10 +17,7 @@ import Data.Function ((&))
 import Data.Pool.Introspection.Bean (PoolConf)
 import JsonConf
 import JsonConf.YamlFile qualified
-import Log
 import Log.Backend.StandardOutput
-import Network.Wai.Bean
-import Sqlite (Connection)
 import ThreadLocal
 
 manuallyWired :: Managed Runner

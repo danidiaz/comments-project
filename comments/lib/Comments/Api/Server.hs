@@ -19,12 +19,15 @@ import Comments.Repository
 import Control.Monad.Trans.Except
 import Data.Coerce
 import Data.Foldable
+-- import Lucid.Servant
+
+import Data.Function ((&))
 import Log
 import Lucid
--- import Lucid.Servant
 import Network.HTTP.Types.Header
 import Network.URI (uriToString)
 import Servant
+import Prelude hiding (log)
 
 newtype CommentsServer = CommentsServer {server :: Server Api}
 
@@ -36,14 +39,15 @@ makeCommentsServer ::
   CommentsLinks ->
   CommentsRepository ->
   CommentsServer
-makeCommentsServer logger CommentsLinks {links} CommentsRepository {storeComment, listComments} =
+makeCommentsServer logger CommentsLinks {links} repository =
   CommentsServer {server}
   where
+    runLog = runLogT "server" logger defaultLogLevel
     server =
       Comments
         { mainPage = handlerize do
-            runLogT "main" logger defaultLogLevel do logInfo_ "Hi there"
-            comments <- listComments
+            logInfo_ "Serving main page." & runLog
+            comments <- repository & listComments
             pure do
               doctypehtml_ do
                 head_ do
@@ -58,7 +62,7 @@ makeCommentsServer logger CommentsLinks {links} CommentsRepository {storeComment
                       div_ do textarea_ [id_ "comment", name_ "commentText", rows_ "5"] mempty
                       input_ [type_ "submit", value_ "Send"],
           addComment = \IncomingComment {commentText} -> MkHandler do
-            storeComment Comment {commentText}
+            repository & storeComment Comment {commentText}
             -- \| https://hachyderm.io/@DiazCarrete/111841132226571708
             pure do
               Left

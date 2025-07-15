@@ -12,8 +12,8 @@ make = do
   ref <- newIORef @(Seq Comment) mempty
   pure
     CommentsRepository
-      { storeComment = \c -> do
+      { _storeComment = \c -> do
           atomicModifyIORef' ref $ \theSeq -> (theSeq |> c, ()),
-        listComments = do
+        _listComments = do
           Data.Foldable.toList <$> readIORef ref
       }

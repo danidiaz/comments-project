@@ -5,6 +5,7 @@ module Comments.Repository.Sqlite where
 
 import Comments
 import Comments.Repository
+import Data.Function ((&))
 import Data.Text
 import Data.Tuple
 import Log
@@ -14,17 +15,17 @@ make ::
   Logger ->
   IO Connection ->
   CommentsRepository
-make logger askConn = do
+make logger askConn =
   CommentsRepository
-    { storeComment = \Comment {commentText} -> do
-        runLogT "sqliterepo" logger defaultLogLevel $ logInfo_ "storing comment"
+    { _storeComment = \Comment {commentText} -> do
+        logInfo_ "Storing comment." & runLog
         conn <- askConn
         Sqlite.Query.execute
           conn
           "insert into comment (comment_text) values (?)"
           (MkSolo commentText),
-      listComments = do
-        runLogT "sqliterepo" logger defaultLogLevel $ logInfo_ "listing comments"
+      _listComments = do
+        logInfo_ "Listing comments." & runLog
         conn <- askConn
         commentTexts :: [Solo Text] <-
           Sqlite.Query.select_
@@ -32,3 +33,5 @@ make logger askConn = do
             "select comment_text from comment"
         pure do Comment . getSolo <$> commentTexts
     }
+  where
+    runLog = runLogT "sqliterepo" logger defaultLogLevel

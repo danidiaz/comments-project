@@ -13,6 +13,7 @@ module Comments.Api.Runner
 where
 
 import Data.Aeson
+import Data.Function ((&))
 import GHC.Generics (Generic)
 import Log
 import Network.Wai.Bean
@@ -36,6 +37,7 @@ makeRunner
   logger
   Application_ {application} = Runner {runServer}
     where
+      runLog = runLogT "runner" logger defaultLogLevel
       runServer = do
-        runLogT "runner" logger defaultLogLevel $ logInfo "Runner started" conf
+        logInfo "Runner started" conf & runLog
         run port application
