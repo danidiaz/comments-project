@@ -27,3 +27,5 @@ beans*.svg
 *.sqlite
 *.key
 *.cert
+*.pem
+

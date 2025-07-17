@@ -81,7 +81,9 @@ particular to the request's servicing thread. Currently we store the Sqlite
   
   > One way to use sqlite3 in a shell script is to use "echo" or "cat" to generate a sequence of commands in a file, then invoke sqlite3 while redirecting input from the generated command file. This works fine and is appropriate in many circumstances. But as an added convenience, sqlite3 allows a single SQL command to be entered on the command line as a second argument after the database name. 
 
--  [#sqlite serialized theading mode and prepared statements](https://hachyderm.io/@DiazCarrete/111823721851342109)
+- [#sqlite serialized theading mode and prepared statements](https://hachyderm.io/@DiazCarrete/111823721851342109)
 
 - [openssl-req](https://docs.openssl.org/master/man1/openssl-req/). [self-signed](https://stackoverflow.com/a/32169444/1364288). [2](https://gist.github.com/justinhartman/36cccc6ce26a01378369b35fd048748a).
+
+- [warp-tls](https://hackage-content.haskell.org/package/warp-tls-3.4.13/docs/Network-Wai-Handler-WarpTLS.html#t:TLSSettings)
 
