@@ -83,3 +83,5 @@ particular to the request's servicing thread. Currently we store the Sqlite
 
 -  [#sqlite serialized theading mode and prepared statements](https://hachyderm.io/@DiazCarrete/111823721851342109)
 
+- [openssl-req](https://docs.openssl.org/master/man1/openssl-req/). [self-signed](https://stackoverflow.com/a/32169444/1364288). [2](https://gist.github.com/justinhartman/36cccc6ce26a01378369b35fd048748a).
+
