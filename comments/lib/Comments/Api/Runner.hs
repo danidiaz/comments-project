@@ -9,13 +9,14 @@ module Comments.Api.Runner
   ( RunnerConf (..),
     Runner (..),
     makeRunner,
+    hoistRunner,
+    runApplication
   )
 where
 
 import Data.Aeson
 import Data.Function ((&))
 import GHC.Generics (Generic)
-import Log
 import Network.Wai.Bean
 import Network.Wai.Handler.Warp (run)
 
@@ -25,19 +26,20 @@ data RunnerConf = RunnerConf
   deriving stock (Generic)
   deriving anyclass (FromJSON, ToJSON)
 
-newtype Runner = Runner {runServer :: IO ()}
+newtype Runner = Runner {_run :: IO ()}
 
 makeRunner ::
   RunnerConf ->
-  Logger ->
   Application_ ->
   Runner
 makeRunner
-  conf@RunnerConf {port}
-  logger
-  Application_ {application} = Runner {runServer}
+  RunnerConf {port}
+  Application_ {application} = Runner {_run}
     where
-      runLog = runLogT "runner" logger defaultLogLevel
-      runServer = do
-        logInfo "Runner started" conf & runLog
-        run port application
+      _run = run port application
+
+runApplication :: Runner -> IO ()
+runApplication Runner { _run } = _run  
+
+hoistRunner :: (forall x. IO x -> IO x) -> Runner -> Runner
+hoistRunner f Runner {_run} =  Runner { _run = f _run }

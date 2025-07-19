@@ -25,7 +25,7 @@ cabal.project.local~
 beans*.png
 beans*.svg
 *.sqlite
-*.key
+*.csr
 *.cert
+*.key
 *.pem
-

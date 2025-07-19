@@ -39,8 +39,8 @@ manuallyWired = do
   staticServeConf <- liftIO $ JsonConf.lookupSection @StaticServeConf "runner" jsonConf
   let application_ = makeApplication_ commentsServer staticServeConf
   runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
-  pure $ makeRunner runnerConf logger application_
+  pure $ makeRunner runnerConf application_
 
 main :: IO ()
 main = do
-  with manuallyWired \Runner {runServer} -> runServer
+  with manuallyWired runApplication

@@ -9,7 +9,7 @@ module Main (main) where
 import Cauldron
 import Cauldron.Managed
 import Comments.Api
-import Comments.Api.Runner (Runner (..))
+import Comments.Api.Runner (Runner (..), runApplication)
 import Comments.Repository (CommentsRepository)
 import Comments.Repository.Memory qualified
 import Comments.Root (cauldron)
@@ -32,7 +32,7 @@ main = defaultMain tests
 newtype TestBean = TestBean {runTest :: IO ()}
 
 homePageLoads :: CommentsLinks -> Runner -> TestBean
-homePageLoads links Runner {runServer} = TestBean do
+homePageLoads links runner = TestBean do
   race_
     do
       base <-
@@ -46,7 +46,7 @@ homePageLoads links Runner {runServer} = TestBean do
       let code = statusCode $ responseStatus response
       code & assertEqual "code should be correct" 200
     do
-      runServer
+      runner & runApplication
 
 tests :: TestTree
 tests =

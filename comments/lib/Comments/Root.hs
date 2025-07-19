@@ -62,8 +62,15 @@ cauldron =
       recipe @StaticServeConf $ ioEff_ $ wire $ JsonConf.lookupSection @StaticServeConf "runner",
       recipe @Application_ $ val_ $ Comments.Api.WholeServer.makeApplication_ <$> fmap Comments.Api.Server.unwrap arg <*> arg,
       recipe @RunnerConf $ ioEff_ $ wire $ JsonConf.lookupSection @RunnerConf "runner",
-      recipe @Runner $ val_ $ wire makeRunner
-      -- (type Runner) |=| val_ $ wire makeRunner
+      recipe @Runner $ Recipe {
+        bare = val_ $ wire makeRunner,
+        decos = 
+          [
+            val_ $ wire $ \logger (conf :: RunnerConf) -> hoistRunner \action -> do
+              logInfo "Server started" conf & runLogT "runner" logger defaultLogLevel
+              action
+          ]
+      }
     ]
 
 -- <> [
@@ -75,5 +82,4 @@ main = do
   cauldron
     & cook @Runner forbidDepCycles
     & either throwIO \action ->
-      with action \(Runner {runServer}) -> do
-        runServer
+      with action runApplication
