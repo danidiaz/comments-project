@@ -7,7 +7,7 @@ module Comments.Root.Manual (main) where
 
 import Cauldron.Managed
 import Comments.Api (makeLinks)
-import Comments.Api.Runner
+import Network.Wai.Handler.Warp.Runner
 import Comments.Api.Server
 import Comments.Api.WholeServer
 import Comments.Repository.Sqlite qualified

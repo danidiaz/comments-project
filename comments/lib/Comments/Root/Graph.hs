@@ -5,9 +5,9 @@
 module Comments.Root.Graph (Comments.Root.Graph.main) where
 
 import Cauldron
-import Comments.Api.Runner
 import Comments.Root (cauldron)
 import Control.Concurrent.Async (forConcurrently_)
+import Network.Wai.Handler.Warp.Runner (Runner)
 import Control.Concurrent.QSem
 import Control.Exception (bracket_)
 import System.FilePath (replaceExtension)

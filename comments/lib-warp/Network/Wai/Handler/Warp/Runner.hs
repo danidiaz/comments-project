@@ -2,10 +2,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ViewPatterns #-}
-
-module Comments.Api.Runner
+module Network.Wai.Handler.Warp.Runner
   ( RunnerConf (..),
     Runner (..),
     makeRunner,

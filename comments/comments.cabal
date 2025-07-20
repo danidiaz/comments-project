@@ -75,7 +75,6 @@ library
         Comments.Api
         Comments.Api.Server
         Comments.Api.WholeServer
-        Comments.Api.Runner
     build-depends:
         base,
         cauldron,
@@ -97,14 +96,15 @@ library
         http-api-data,
         http-types,
         unordered-containers,
-        dani-beans:threadlocal,
-        dani-beans:jsonconf,
         network-uri,
-        dani-beans-wai,
-        dani-beans-resource-pool,
         process,
         async,
         filepath,
+        dani-beans-wai,
+        dani-beans-warp,
+        dani-beans-resource-pool,
+        dani-beans:threadlocal,
+        dani-beans:jsonconf,
     hs-source-dirs:   lib
 
 library dani-beans-wai
@@ -115,6 +115,19 @@ library dani-beans-wai
         base,
         wai
     hs-source-dirs:   lib-wai
+    -- other-modules:
+
+library dani-beans-warp
+    import:           language
+    exposed-modules:
+        Network.Wai.Handler.Warp.Runner
+    build-depends:
+        base,
+        wai,
+        dani-beans-wai,
+        aeson,
+        warp,
+    hs-source-dirs:   lib-warp
     -- other-modules:
 
 library dani-beans-resource-pool
@@ -139,6 +152,7 @@ test-suite comments-test
     build-depends:
         base,
         comments,
+        dani-beans-warp,
         cauldron,
         network-uri,
         http-client,

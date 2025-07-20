@@ -9,7 +9,7 @@ module Main (main) where
 import Cauldron
 import Cauldron.Managed
 import Comments.Api
-import Comments.Api.Runner (Runner (..), runApplication)
+import Network.Wai.Handler.Warp.Runner (Runner (..), runApplication)
 import Comments.Repository (CommentsRepository)
 import Comments.Repository.Memory qualified
 import Comments.Root (cauldron)
