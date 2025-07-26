@@ -6,7 +6,7 @@ module Network.Wai.Handler.Warp.Runner
   ( RunnerConf (..),
     Runner (..),
     makeRunner,
-    hoistRunner,
+    decorate,
     runApplication
   )
 where
@@ -38,5 +38,5 @@ makeRunner
 runApplication :: Runner -> IO ()
 runApplication Runner { _run } = _run  
 
-hoistRunner :: (forall x. IO x -> IO x) -> Runner -> Runner
-hoistRunner f Runner {_run} =  Runner { _run = f _run }
+decorate :: (forall x. IO x -> IO x) -> Runner -> Runner
+decorate f Runner {_run} =  Runner { _run = f _run }

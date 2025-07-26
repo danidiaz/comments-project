@@ -66,7 +66,7 @@ cauldron =
         bare = val_ $ wire makeRunner,
         decos = 
           [
-            val_ $ wire $ \logger (conf :: RunnerConf) -> hoistRunner \action -> do
+            val_ $ wire $ \logger (conf :: RunnerConf) -> Network.Wai.Handler.Warp.Runner.decorate \action -> do
               logInfo "Server started" conf & runLogT "runner" logger defaultLogLevel
               action
           ]
