@@ -3,30 +3,32 @@
 
   # https://search.nixos.org/packages
   inputs = {
-    nixpkgs.url = "flake:nixpkgs/25.05";
+    nixpkgs.url = "flake:nixpkgs/25.11";
   };
 
-  outputs = { self, nixpkgs }: 
-  let system = "x86_64-linux" ;
-  in {
-        devShells.${system}.default = 
-        let pkgs = nixpkgs.legacyPackages.${system};
-        in 
-            # https://ryantm.github.io/nixpkgs/builders/special/mkshell/
-            pkgs.mkShell {
-                packages = [
-                    pkgs.graphviz 
-                    pkgs.watchexec 
-                    pkgs.python314
-                    pkgs.ormolu
-                    pkgs.ghcid
-                    pkgs.openssl
-                ];
-                # https://www.reddit.com/r/NixOS/comments/110xqki/comment/j8k996e/
-                shellHook = 
-                    ''
-                      PS1='\e[4;32m(dev) \W\$\e[m ' 
-                    '';
-            };
+  outputs =
+    { self, nixpkgs }:
+    let
+      system = "x86_64-linux";
+    in
+    {
+      devShells.${system}.default =
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        # https://ryantm.github.io/nixpkgs/builders/special/mkshell/
+        pkgs.mkShell {
+          packages = [
+            pkgs.graphviz
+            pkgs.watchexec
+            pkgs.ormolu
+            pkgs.ghcid
+            pkgs.openssl
+          ];
+          # https://www.reddit.com/r/NixOS/comments/110xqki/comment/j8k996e/
+          shellHook = ''
+            PS1='\e[4;32m(dev) \W\$\e[m ' 
+          '';
+        };
     };
 }
