@@ -1,6 +1,3 @@
-[submodule "dani-sqlite"]
-	path = dani-sqlite
-	url = https://github.com/danidiaz/dani-sqlite.git
 [submodule "cauldron"]
 	path = cauldron
 	url = https://github.com/danidiaz/cauldron.git
