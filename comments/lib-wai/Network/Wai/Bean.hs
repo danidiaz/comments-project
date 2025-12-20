@@ -2,21 +2,21 @@
 {-# LANGUAGE NoFieldSelectors #-}
 
 module Network.Wai.Bean
-  ( Application_ (..),
-    Middleware_ (..),
-    applyMiddleware_,
+  ( Application (..),
+    Middleware (..),
+    applyMiddleware,
   )
 where
 
 import Data.Monoid (Dual (..), Endo (..))
-import Network.Wai
+import Network.Wai qualified
 
-newtype Application_ = Application_ {application :: Application}
+newtype Application = Application {application :: Network.Wai.Application}
 
--- | In the 'Semigroup' instance, the left 'Middleware_' will be applied /first/ to the 'Application_'!
-newtype Middleware_ = Middleware_ {middleware :: Middleware}
+-- | In the 'Semigroup' instance, the left 'Middleware' will be applied /first/ to the 'Application'!
+newtype Middleware = Middleware {middleware :: Network.Wai.Middleware}
   deriving (Semigroup, Monoid) via (Dual (Endo Application))
 
-applyMiddleware_ :: Middleware_ -> Application_ -> Application_
-applyMiddleware_ (Middleware_ {middleware}) (Application_ {application}) =
-  Application_ {application = middleware application}
+applyMiddleware :: Middleware -> Application -> Application
+applyMiddleware (Middleware {middleware}) (Application {application}) =
+  Application {application = middleware application}

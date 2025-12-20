@@ -9,7 +9,6 @@ module Main (main) where
 import Cauldron
 import Cauldron.Managed
 import Comments.Api
-import Network.Wai.Handler.Warp.Runner (Runner (..), runApplication)
 import Comments.Repository (CommentsRepository)
 import Comments.Repository.Memory qualified
 import Comments.Root (cauldron)
@@ -20,6 +19,7 @@ import Data.Function ((&))
 import Network.HTTP.Client
 import Network.HTTP.Types.Status (statusCode)
 import Network.URI
+import Network.Wai.Handler.Warp.Runner (Runner (..), runApplication)
 import Test.Tasty
 import Test.Tasty.HUnit
 

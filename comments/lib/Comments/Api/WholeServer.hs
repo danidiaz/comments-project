@@ -3,13 +3,13 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 
-module Comments.Api.WholeServer (StaticServeConf (..), makeApplication_) where
+module Comments.Api.WholeServer (StaticServeConf (..), makeApplication) where
 
 import Comments.Api
 import Data.Aeson
 import Data.Proxy
 import GHC.Generics (Generic)
-import Network.Wai.Bean
+import Network.Wai.Bean qualified
 import Servant.API
 import Servant.Server
 import Servant.Server.StaticFiles
@@ -20,8 +20,8 @@ data StaticServeConf = StaticServeConf
   deriving stock (Generic)
   deriving anyclass (FromJSON, ToJSON)
 
-makeApplication_ :: Server Api -> StaticServeConf -> Application_
-makeApplication_ server StaticServeConf {staticAssetsFolder} = Application_ {application}
+makeApplication :: Server Api -> StaticServeConf -> Network.Wai.Bean.Application
+makeApplication server StaticServeConf {staticAssetsFolder} = Network.Wai.Bean.Application {Network.Wai.Bean.application}
   where
     staticAssetsServer = serveDirectoryWebApp staticAssetsFolder
     application :: Application

@@ -7,7 +7,6 @@ module Comments.Root.Manual (main) where
 
 import Cauldron.Managed
 import Comments.Api (makeLinks)
-import Network.Wai.Handler.Warp.Runner
 import Comments.Api.Server
 import Comments.Api.WholeServer
 import Comments.Repository.Sqlite qualified
@@ -18,6 +17,7 @@ import Data.Pool.Introspection.Bean (PoolConf)
 import JsonConf
 import JsonConf.YamlFile qualified
 import Log.Backend.StandardOutput
+import Network.Wai.Handler.Warp.Runner
 import ThreadLocal
 
 manuallyWired :: Managed Runner
@@ -37,10 +37,10 @@ manuallyWired = do
         makeCommentsServer logger links commentsRepository
           & Comments.Sqlite.hoistWithConnection Comments.Api.Server.hoistCommentsServer sqlitePool threadLocalConn
   staticServeConf <- liftIO $ JsonConf.lookupSection @StaticServeConf "runner" jsonConf
-  let application_ = makeApplication_ commentsServer staticServeConf
+  let application_ = makeApplication commentsServer staticServeConf
   runnerConf <- liftIO $ JsonConf.lookupSection @RunnerConf "runner" jsonConf
   pure $ makeRunner runnerConf application_
 
 main :: IO ()
 main = do
-  with manuallyWired runApplication
+  with manuallyWired Network.Wai.Handler.Warp.Runner.run

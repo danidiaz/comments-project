@@ -2,20 +2,20 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
+
 module Network.Wai.Handler.Warp.Runner
   ( RunnerConf (..),
     Runner (..),
     makeRunner,
     decorate,
-    runApplication
+    run,
   )
 where
 
 import Data.Aeson
-import Data.Function ((&))
 import GHC.Generics (Generic)
 import Network.Wai.Bean
-import Network.Wai.Handler.Warp (run)
+import Network.Wai.Handler.Warp qualified
 
 data RunnerConf = RunnerConf
   { port :: Int
@@ -27,16 +27,16 @@ newtype Runner = Runner {_run :: IO ()}
 
 makeRunner ::
   RunnerConf ->
-  Application_ ->
+  Application ->
   Runner
 makeRunner
   RunnerConf {port}
-  Application_ {application} = Runner {_run}
+  Application {application} = Runner {_run}
     where
-      _run = run port application
+      _run = Network.Wai.Handler.Warp.run port application
 
-runApplication :: Runner -> IO ()
-runApplication Runner { _run } = _run  
+run :: Runner -> IO ()
+run Runner {_run} = _run
 
 decorate :: (forall x. IO x -> IO x) -> Runner -> Runner
-decorate f Runner {_run} =  Runner { _run = f _run }
+decorate f Runner {_run} = Runner {_run = f _run}

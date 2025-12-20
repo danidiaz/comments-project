@@ -14,7 +14,6 @@ import Cauldron
 -- import Cauldron.Args
 import Cauldron.Managed
 import Comments.Api (CommentsLinks, makeLinks)
-import Network.Wai.Handler.Warp.Runner
 import Comments.Api.Server
 -- import Control.Monad.IO.Class
 
@@ -32,6 +31,7 @@ import JsonConf.YamlFile qualified
 import Log
 import Log.Backend.StandardOutput
 import Network.Wai.Bean
+import Network.Wai.Handler.Warp.Runner
 import Sqlite (Connection)
 import ThreadLocal
 
@@ -60,17 +60,17 @@ cauldron =
               ]
           },
       recipe @StaticServeConf $ ioEff_ $ wire $ JsonConf.lookupSection @StaticServeConf "runner",
-      recipe @Application_ $ val_ $ Comments.Api.WholeServer.makeApplication_ <$> fmap Comments.Api.Server.unwrap arg <*> arg,
+      recipe @Application $ val_ $ Comments.Api.WholeServer.makeApplication <$> fmap Comments.Api.Server.unwrap arg <*> arg,
       recipe @RunnerConf $ ioEff_ $ wire $ JsonConf.lookupSection @RunnerConf "runner",
-      recipe @Runner $ Recipe {
-        bare = val_ $ wire makeRunner,
-        decos = 
-          [
-            val_ $ wire $ \logger (conf :: RunnerConf) -> Network.Wai.Handler.Warp.Runner.decorate \action -> do
-              logInfo "Server started" conf & runLogT "runner" logger defaultLogLevel
-              action
-          ]
-      }
+      recipe @Runner $
+        Recipe
+          { bare = val_ $ wire makeRunner,
+            decos =
+              [ val_ $ wire $ \logger (conf :: RunnerConf) -> Network.Wai.Handler.Warp.Runner.decorate \action -> do
+                  logInfo "Server started" conf & runLogT "runner" logger defaultLogLevel
+                  action
+              ]
+          }
     ]
 
 -- <> [
@@ -82,4 +82,4 @@ main = do
   cauldron
     & cook @Runner forbidDepCycles
     & either throwIO \action ->
-      with action runApplication
+      with action Network.Wai.Handler.Warp.Runner.run
